@@ -112,6 +112,7 @@ src/
 - `POST /order` - Create new order
 - `PATCH /order/:id/status` - Update order status (admin only)
 - `PATCH /order/:id/cancel` - Cancel order (only pending orders)
+- `PATCH /order/:id/user/confirm-delivery` - Mark an order as delivered/received (user only)
 
 ### Plans
 - `GET /plan` - Get all subscription plans
@@ -465,50 +466,7 @@ The API uses JWT tokens for authentication. Include the token in the Authorizati
 Authorization: Bearer <your_token_here>
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the ISC License.
-
-## Contact
-
-
-Project Link: [https://github.com/Quancon/ChayFood](https://github.com/Quancon/ChayFood) 
-
-## Order Status Lifecycle
-
-Orders in the system follow a specific lifecycle with these statuses:
-
-1. **pending** - Initial state when an order is created
-2. **confirmed** - Order has been accepted by the restaurant
-3. **preparing** - Food preparation has started
-4. **ready** - Order is ready for delivery or pickup
-5. **delivered** - Order has been delivered to the customer
-6. **cancelled** - Order has been cancelled
-
-### Order Status Validation Rules
-
-The following rules apply when changing order status:
-
-1. **Can only cancel** orders that are in "pending" or "confirmed" status
-2. **Cannot change status** of orders that have been delivered
-3. **Cannot revert status** once an order has reached "ready" or "delivered" status
-4. **Status progression** follows a one-way flow (pending → confirmed → preparing → ready → delivered)
-
-### Cancelling Orders
-
-Users can cancel their own orders with these restrictions:
-- Only orders in "pending" or "confirmed" status can be cancelled
-- Orders in "preparing", "ready", or "delivered" status cannot be cancelled
-- Users can only cancel their own orders
-- Admins can cancel any order that is in "pending" or "confirmed" status
+## Subscription-based Meal Plans
 
 To cancel an order:
 ```
@@ -517,235 +475,21 @@ PATCH /order/:id/cancel
 
 No request body is required. Authentication token must be provided. 
 
+### Confirming Order Delivery
+
+Users can mark their orders as delivered with these restrictions:
+- Only orders in "confirmed", "ready", or "out_for_delivery" status can be marked as delivered
+- Orders in "pending", "preparing", "delivered" or "cancelled" status cannot be marked as delivered
+- Users can only confirm delivery for their own orders
+- Admins can mark any eligible order as delivered
+
+To confirm order delivery:
+```
+PATCH /order/:id/user/confirm-delivery
+```
+
+No request body is required. Authentication token must be provided.
+
 ## Subscription-based Meal Plans
 
 ChayFood offers flexible subscription-based meal plans that can be fully customized.
-
-### Plan Management
-
-Administrators can create and manage subscription plans:
-
-```json
-{
-  "name": "Gói Cơ bản",
-  "code": "basic",
-  "price": 1200000,
-  "duration": 7,
-  "description": "Gói cơ bản với 2 bữa ăn mỗi ngày",
-  "mealsPerDay": 2,
-  "snacksPerDay": 0,
-  "features": [
-    "2 bữa ăn mỗi ngày",
-    "Menu đa dạng",
-    "Giao hàng tận nơi",
-    "Hỗ trợ dinh dưỡng cơ bản"
-  ],
-  "isRecommended": true,
-  "isPremiumMenu": false,
-  "hasDietitianSupport": false,
-  "hasCustomization": true,
-  "hasPriorityDelivery": false,
-  "has24HrSupport": false
-}
-```
-
-### Creating a Subscription
-
-To create a subscription, make a POST request to `/subscription`:
-
-```json
-{
-  "planId": "6450bc71a3e78d12345f6789",
-  "startDate": "2023-05-01T00:00:00.000Z",
-  "deliveryAddress": {
-    "street": "123 Main St",
-    "city": "Hanoi",
-    "state": "HN",
-    "postalCode": "10000",
-    "additionalInfo": "Apartment 4B"
-  },
-  "paymentMethod": "card",
-  "specialInstructions": "Please deliver before 8am"
-}
-```
-
-### Customizing Meal Selections
-
-After creating a subscription, you can customize meal selections by making a PATCH request to `/subscription/:id/menu`:
-
-```json
-{
-  "selectedMenuItems": [
-    {
-      "menuItemId": "645a1b2c3d4e5f6a7b8c9d0e",
-      "quantity": 1,
-      "dayOfWeek": 0,
-      "mealType": "breakfast"
-    },
-    {
-      "menuItemId": "645a1b2c3d4e5f6a7b8c9d0f",
-      "quantity": 1,
-      "dayOfWeek": 0,
-      "mealType": "lunch"
-    },
-    {
-      "menuItemId": "645a1b2c3d4e5f6a7b8c9d10",
-      "quantity": 1,
-      "dayOfWeek": 1,
-      "mealType": "breakfast"
-    }
-  ]
-}
-```
-
-The system validates that your selections don't exceed the number of meals allowed by your plan.
-
-## Authentication API
-
-### Email/Password Authentication
-
-- `POST /auth/register` - Register a new user
-  - Request Body:
-    ```json
-    {
-      "name": "User Name",
-      "email": "user@example.com",
-      "password": "securepassword123"
-    }
-    ```
-  - Response:
-    ```json
-    {
-      "status": "success",
-      "message": "User registered successfully",
-      "token": "jwt_token_here",
-      "user": {
-        "_id": "user_id",
-        "name": "User Name",
-        "email": "user@example.com",
-        "role": "user"
-      }
-    }
-    ```
-
-- `POST /auth/login` - Login with email and password
-  - Request Body:
-    ```json
-    {
-      "email": "user@example.com",
-      "password": "securepassword123"
-    }
-    ```
-  - Response:
-    ```json
-    {
-      "status": "success",
-      "message": "Login successful",
-      "token": "jwt_token_here",
-      "user": {
-        "_id": "user_id",
-        "name": "User Name",
-        "email": "user@example.com",
-        "role": "user",
-        "picture": "user_picture_url"
-      }
-    }
-    ```
-
-### OAuth Authentication
-
-- `GET /auth/google` - Initiate Google OAuth2 login
-  - Redirects to Google authentication page
-  - After successful authentication, redirects to `/auth/google/callback`
-
-- `GET /auth/facebook` - Initiate Facebook OAuth login
-  - Redirects to Facebook authentication page
-  - After successful authentication, redirects to `/auth/facebook/callback`
-
-- `GET /auth/status` - Check if user is authenticated
-  - Response if authenticated:
-    ```json
-    {
-      "isAuthenticated": true,
-      "user": {
-        "_id": "user_id",
-        "name": "User Name",
-        "email": "user@example.com",
-        "role": "user",
-        "picture": "user_picture_url"
-      }
-    }
-    ```
-  - Response if not authenticated:
-    ```json
-    {
-      "isAuthenticated": false
-    }
-    ```
-
-- `GET /auth/logout` - Logout user
-  - Response:
-    ```json
-    {
-      "status": "success",
-      "message": "Logged out successfully"
-    }
-    ```
-
-## Frontend Implementation for OAuth
-
-The OAuth flow works by redirecting the user to the provider's authentication page. After successful authentication, the provider redirects back to your application with an authorization code, which is exchanged for a token.
-
-1. Create a button that redirects users to the OAuth endpoint:
-   ```javascript
-   // For Google login
-   window.location.href = 'http://localhost:5000/auth/google';
-   
-   // For Facebook login
-   window.location.href = 'http://localhost:5000/auth/facebook';
-   ```
-
-2. Create a callback page that receives the token from the redirect URL:
-   ```javascript
-   // In your frontend callback component (e.g., /auth/callback)
-   useEffect(() => {
-     const params = new URLSearchParams(window.location.search);
-     const token = params.get('token');
-     
-     if (token) {
-       // Store token in localStorage
-       localStorage.setItem('authToken', token);
-       
-       // Redirect to home or dashboard
-       window.location.href = '/dashboard';
-     } else {
-       // Handle error
-       window.location.href = '/login?error=Authentication failed';
-     }
-   }, []);
-   ```
-
-## Setup Instructions for OAuth
-
-1. Create OAuth credentials:
-   - For Google: [Google Developer Console](https://console.developers.google.com/)
-   - For Facebook: [Facebook for Developers](https://developers.facebook.com/)
-
-2. Update your .env file with the required credentials:
-   ```
-   # Google OAuth
-   GOOGLE_CLIENT_ID=your_google_client_id
-   GOOGLE_CLIENT_SECRET=your_google_client_secret
-   
-   # Facebook OAuth
-   FACEBOOK_APP_ID=your_facebook_app_id
-   FACEBOOK_APP_SECRET=your_facebook_app_secret
-   
-   # App URLs
-   FRONTEND_URL=http://localhost:3000
-   API_URL=http://localhost:5000
-   ```
-
-3. Ensure that your OAuth callback URLs are configured correctly in the developer consoles:
-   - Google: `http://localhost:5000/auth/google/callback`
-   - Facebook: `http://localhost:5000/auth/facebook/callback`

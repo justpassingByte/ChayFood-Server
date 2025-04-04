@@ -7,6 +7,7 @@ import {
   checkAuthStatus, 
   logout 
 } from '../controllers/auth-controller';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -39,7 +40,7 @@ router.get(
 );
 
 // Check authentication status
-router.get('/status', checkAuthStatus);
+router.get('/status', authenticateToken, checkAuthStatus);
 
 // Logout
 router.get('/logout', logout);

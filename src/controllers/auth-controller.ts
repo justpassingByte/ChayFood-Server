@@ -144,37 +144,69 @@ export async function login(req: Request, res: Response): Promise<void> {
  * Handle OAuth callback (Google, Facebook, etc.)
  */
 export function handleOAuthCallback(req: Request, res: Response): void {
-  const user = req.user as IUser;
-  
-  if (!user) {
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=Authentication%20failed`);
-    return;
+  try {
+    // The user should already be attached to the request by Passport.js
+    const user = req.user;
+    
+    if (!user) {
+      console.error('OAuth callback: No user found in request');
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/callback?error=authentication_failed`);
+    }
+    
+    // Make sure we have a valid user object with _id
+    if (!user._id) {
+      console.error('OAuth callback: Invalid user object', user);
+      return res.redirect(`${process.env.FRONTEND_URL}/auth/callback?error=server_error`);
+    }
+    
+    // Generate JWT token for the authenticated user
+    const token = jwt.sign(
+      { 
+        _id: user._id, 
+        email: user.email,
+        // Include role if available, default to 'user'
+        role: user.role || 'user'
+      },
+      process.env.JWT_SECRET || 'default_jwt_secret',
+      { expiresIn: '7d' }
+    );
+    
+    // Log successful authentication
+    console.log(`OAuth login successful for user: ${user.email}`);
+    
+    // Redirect to the frontend callback page with the token
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?error=server_error`);
   }
-  
-  const token = jwt.sign(
-    { _id: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET || 'default_jwt_secret',
-    { expiresIn: '7d' }
-  );
-
-  // Redirect to frontend with token
-  res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?token=${token}`);
 }
 
 /**
  * Check authentication status
  */
 export function checkAuthStatus(req: Request, res: Response): void {
+  console.log('Auth status check - req.user:', req.user ? {
+    _id: (req.user as IUser)._id,
+    email: (req.user as IUser).email,
+    role: (req.user as IUser).role
+  } : 'No user');
+  
   if (req.user) {
+    // Create a minimal user object that includes all necessary fields
+    const userResponse = {
+      _id: (req.user as any)._id,
+      email: (req.user as any).email,
+      name: (req.user as any).name || (req.user as any).email?.split('@')[0] || 'User',
+      role: (req.user as any).role || 'user',
+      picture: (req.user as any).picture || null
+    };
+    
+    console.log('Responding with user:', userResponse);
+    
     res.json({ 
       isAuthenticated: true, 
-      user: {
-        _id: (req.user as IUser)._id,
-        name: (req.user as IUser).name,
-        email: (req.user as IUser).email,
-        role: (req.user as IUser).role,
-        picture: (req.user as IUser).picture
-      } 
+      user: userResponse
     });
   } else {
     res.json({ isAuthenticated: false });
