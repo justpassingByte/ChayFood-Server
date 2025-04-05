@@ -11,7 +11,7 @@ export interface IOrder extends mongoose.Document {
     specialInstructions?: string;
   }>;
   totalAmount: number;
-  status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'preparing' |  'delivering' |'ready' | 'delivered' | 'cancelled';
   deliveryAddress: {
     street: string;
     city: string;

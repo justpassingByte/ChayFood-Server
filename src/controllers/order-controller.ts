@@ -494,4 +494,110 @@ export async function cancelOrder(req: Request, res: Response): Promise<void> {
       error: error.message
     });
   }
+}
+
+/**
+ * Confirm order delivery (mark as received by user)
+ */
+export async function confirmDelivery(req: Request, res: Response): Promise<void> {
+  try {
+    // Debug request information
+    console.log('--- CONFIRM DELIVERY DEBUG ---');
+    console.log('Order ID:', req.params.id);
+    console.log('User role:', req.user?.role);
+    console.log('User ID:', req.user?._id);
+    console.log('Request body:', req.body);
+    console.log('---------------------------');
+
+    // Check for authentication
+    if (!req.user || !req.user?._id) {
+      console.log('User not authenticated or missing ID');
+      res.status(401).json({ 
+        status: 'error',
+        message: 'Authentication required',
+        error: 'User must be logged in to confirm order delivery'
+      });
+      return;
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      console.log(`Order not found: ${req.params.id}`);
+      res.status(404).json({ 
+        status: 'error',
+        message: 'Order not found',
+        orderId: req.params.id
+      });
+      return;
+    }
+
+    // Check authorization - user can only confirm their own orders
+    if (req.user?.role !== 'admin' && order.user.toString() !== req.user?._id.toString()) {
+      console.log('Access denied - user does not own this order');
+      res.status(403).json({ 
+        status: 'error',
+        message: 'Not authorized',
+        error: 'You do not have permission to confirm this order delivery'
+      });
+      return;
+    }
+
+    // Enhanced validation for order status
+    if (order.status === 'delivered') {
+      res.status(400).json({ 
+        status: 'error',
+        message: 'Order already delivered',
+        error: 'This order has already been marked as delivered'
+      });
+      return;
+    }
+
+    if (order.status === 'cancelled') {
+      res.status(400).json({ 
+        status: 'error',
+        message: 'Cannot confirm delivery of cancelled order',
+        error: 'Cancelled orders cannot be marked as delivered'
+      });
+      return;
+    }
+
+    // Validate order can be marked as delivered based on status
+    // Users can only confirm orders that are confirmed, ready, or out for delivery
+    if (!['confirmed', 'ready', 'delivered'].includes(order.status)) {
+      res.status(400).json({ 
+        status: 'error',
+        message: 'Cannot confirm delivery',
+        error: `Orders in '${order.status}' status cannot be marked as delivered. Only confirmed, ready, or out for delivery orders can be marked as delivered.`
+      });
+      return;
+    }
+
+    // Extract feedback from request body if available
+    const { feedback } = req.body;
+    if (feedback) {
+      console.log(`Received feedback for order ${req.params.id}:`, feedback);
+      // Store feedback in a notes field or separate collection if needed
+      // This is just logging it for now
+    }
+
+    // Just update the status to delivered, don't change paymentStatus
+    order.status = 'delivered';
+    await order.save();
+    
+    console.log('Order delivery confirmed successfully');
+    
+    res.json({
+      status: 'success',
+      message: 'Order delivery confirmed successfully',
+      data: order
+    });
+  } catch (error: any) {
+    console.error('Error confirming order delivery:', error);
+    
+    res.status(400).json({ 
+      status: 'error',
+      message: 'Error confirming order delivery',
+      error: error.message
+    });
+  }
 } 

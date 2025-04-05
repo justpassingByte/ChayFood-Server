@@ -7,7 +7,8 @@ import {
   getOrderById, 
   createOrder, 
   updateOrderStatus, 
-  cancelOrder 
+  cancelOrder,
+  confirmDelivery 
 } from '../controllers/order-controller';
 
 const router = express.Router();
@@ -32,5 +33,8 @@ router.patch('/:id/status', authenticateToken, updateOrderStatus);
 
 // Cancel order
 router.patch('/:id/cancel', authenticateToken, cancelOrder);
+
+// Confirm order delivery (user)
+router.patch('/:id/user/confirm-delivery', authenticateToken, confirmDelivery);
 
 export default router; 

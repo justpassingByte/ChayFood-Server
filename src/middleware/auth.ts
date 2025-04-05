@@ -31,6 +31,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret';
     const decoded = jwt.verify(token, jwtSecret) as JwtUserPayload;
     
+    console.log('Token verification successful, decoded payload:', {
+      _id: decoded._id,
+      email: decoded.email,
+      role: decoded.role
+    });
+    
     // Assign the decoded payload to req.user
     req.user = decoded as any;
     next();
