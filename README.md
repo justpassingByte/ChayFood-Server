@@ -129,6 +129,35 @@ src/
 - `PATCH /subscription/:id/menu` - Update subscription menu selections (authenticated)
 - `PATCH /subscription/:id/cancel` - Cancel a subscription (authenticated)
 
+### Chat
+- `GET /chat/chats` - Get user's chat history
+  - Body params:
+    - `userId` (required): ID of the user
+  - Returns: List of recent chats (limited to 10)
+
+- `GET /chat/chats/:chatId` - Get specific chat details
+  - URL params:
+    - `chatId` (required): ID of the chat
+  - Body params:
+    - `userId` (required): ID of the user
+  - Returns: Detailed chat information
+
+- `POST /chat` - Send message and get AI response
+  - Body params:
+    - `message` (required): User's message
+    - `chatId` (optional): Existing chat ID
+    - `userId` (required): ID of the user
+  - Returns: 
+    - `chatId`: ID of the chat
+    - `message`: AI assistant's response
+
+- `DELETE /chat/chats/:chatId` - Soft delete a chat
+  - URL params:
+    - `chatId` (required): ID of the chat to delete
+  - Body params:
+    - `userId` (required): ID of the user
+  - Returns: Success message
+
 ## Testing the API
 
 ### Generating Test Tokens
@@ -439,6 +468,39 @@ The controllers handle the business logic for each endpoint:
   specialInstructions?: string;
 }
 ```
+
+### Chat Data Model
+```typescript
+{
+  userId: ObjectId;
+  messages: Array<{
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    createdAt: Date;
+  }>;
+  context?: string;
+  lastMessageAt: Date;
+  isActive: boolean;
+  metadata?: {
+    userPreferences?: {
+      dietary?: string[];
+      allergies?: string[];
+      spiceLevel?: number;
+    };
+    orderContext?: {
+      lastOrderId?: ObjectId;
+      cartItems?: ObjectId[];
+    };
+  };
+}
+```
+
+The Chat API provides an AI-powered assistant that can help users with:
+- Menu recommendations
+- Nutritional information
+- Dietary restrictions
+- Order status inquiries
+- Restaurant information
 
 ## Available Scripts
 
