@@ -11,7 +11,8 @@ export async function getAllMenuItems(req: Request, res: Response): Promise<void
       maxCalories,
       minProtein,
       maxProtein,
-      minCalories
+      minCalories,
+      spicyLevel
     } = req.query;
     
     // Build filter object based on query parameters
@@ -20,6 +21,11 @@ export async function getAllMenuItems(req: Request, res: Response): Promise<void
     // Category filter
     if (category) {
       filter.category = category;
+    }
+    
+    // Spicy level filter
+    if (spicyLevel) {
+      filter.spicyLevel = Number(spicyLevel);
     }
     
     // Nutrition filters
@@ -49,9 +55,12 @@ export async function getAllMenuItems(req: Request, res: Response): Promise<void
       }
     }
     
+    console.log('Backend: Applying filters:', filter);
     const menuItems = await MenuItem.find(filter);
+    console.log(`Backend: Found ${menuItems.length} items`);
     res.json(menuItems);
   } catch (error) {
+    console.error('Backend error:', error);
     res.status(500).json({ message: 'Error fetching menu items' });
   }
 }
@@ -70,6 +79,7 @@ export async function searchMenuItems(req: Request, res: Response): Promise<void
       maxCalories, 
       minProtein, 
       maxProtein,
+      spicyLevel,
       sort = 'name',
       order = 'asc',
       limit = 20,
@@ -95,6 +105,11 @@ export async function searchMenuItems(req: Request, res: Response): Promise<void
       searchFilter.category = category;
     }
 
+    // Add spicy level filter if provided
+    if (spicyLevel) {
+      searchFilter.spicyLevel = Number(spicyLevel);
+    }
+
     // Add nutritional filters if provided
     if (minCalories || maxCalories) {
       searchFilter['nutritionInfo.calories'] = {};
@@ -108,6 +123,8 @@ export async function searchMenuItems(req: Request, res: Response): Promise<void
       if (maxProtein) searchFilter['nutritionInfo.protein'].$lte = Number(maxProtein);
     }
 
+    console.log('Backend: Applying search filters:', searchFilter);
+    
     // Build sort options
     const sortOptions: any = {};
     // Set the sort field based on query parameter
@@ -138,6 +155,8 @@ export async function searchMenuItems(req: Request, res: Response): Promise<void
       MenuItem.countDocuments(searchFilter)
     ]);
 
+    console.log(`Backend: Found ${menuItems.length} items from search`);
+    
     // Return results with pagination metadata
     res.json({
       items: menuItems,
@@ -149,6 +168,7 @@ export async function searchMenuItems(req: Request, res: Response): Promise<void
       }
     });
   } catch (error) {
+    console.error('Backend search error:', error);
     res.status(500).json({ message: 'Error searching menu items' });
   }
 }

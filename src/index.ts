@@ -12,7 +12,7 @@ import menuRoutes from './routes/menu';
 import orderRoutes from './routes/order';
 import subscriptionRoutes from './routes/subscription';
 import planRoutes from './routes/plan';
-
+import  chatRouter  from './routes/chat';
 dotenv.config();
 
 const app = express();
@@ -67,8 +67,8 @@ app.use('/menu', menuRoutes);
 app.use('/order', orderRoutes);
 app.use('/subscription', subscriptionRoutes);
 app.use('/plan', planRoutes);
+app.use('/chat', chatRouter);
 
-// 404 handler for undefined routes
 app.use((req, res) => {
   console.log(`Route not found: ${req.method} ${req.path}`);
   res.status(404).json({ 
