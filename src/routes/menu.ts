@@ -9,6 +9,7 @@ import {
   getNutritionalMenuItems,
   searchMenuItems
 } from '../controllers/menu-controller';
+import { trackItemView } from '../middleware/userPreferenceMiddleware';
 
 const router = express.Router();
 
@@ -34,8 +35,8 @@ router.get('/search', searchMenuItems);
 // Get menu items filtered by nutritional content (calories and protein)
 router.get('/nutrition', getNutritionalMenuItems);
 
-// Get menu item by ID
-router.get('/:id', getMenuItemById);
+// Get menu item by ID (track view for authenticated users)
+router.get('/:id', trackItemView, getMenuItemById);
 
 // Create new menu item (admin only)
 router.post('/', authenticateToken, createMenuItem);

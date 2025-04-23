@@ -193,10 +193,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
   try {
     // Debug request information
     console.log('--- CREATE ORDER DEBUG ---');
-    console.log('Request headers:', req.headers);
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
-    console.log('User ID:', req.user?._id);
+    console.log('Request body:', req.body);
     console.log('--------------------------');
 
     // Check if user is authenticated
@@ -278,6 +275,9 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
     // Save the order
     await order.save();
+    
+    // Store order data in res.locals for middleware access
+    res.locals.orderData = order;
     
     // Return the created order
     console.log('Order created successfully');

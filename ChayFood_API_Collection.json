@@ -1,0 +1,576 @@
+{
+  "info": {
+    "name": "ChayFood API",
+    "description": "Collection cho ChayFood Backend API với các endpoint gợi ý món ăn thông minh",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "Xác thực và kiểm tra trạng thái đăng nhập",
+      "item": [
+        {
+          "name": "Get Auth Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/status",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "status"]
+            },
+            "description": "Kiểm tra trạng thái xác thực người dùng"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Đăng xuất người dùng"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu",
+      "description": "Quản lý menu và danh sách món ăn",
+      "item": [
+        {
+          "name": "Get All Menu Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu",
+              "host": ["{{base_url}}"],
+              "path": ["menu"]
+            },
+            "description": "Lấy tất cả món ăn trong menu"
+          }
+        },
+        {
+          "name": "Get Menu By Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu?category=main",
+              "host": ["{{base_url}}"],
+              "path": ["menu"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "main"
+                }
+              ]
+            },
+            "description": "Lọc món ăn theo danh mục (main, side, dessert, beverage)"
+          }
+        },
+        {
+          "name": "Get Menu By Nutrition",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu/nutrition?minProtein=10&maxCalories=500",
+              "host": ["{{base_url}}"],
+              "path": ["menu", "nutrition"],
+              "query": [
+                {
+                  "key": "minProtein",
+                  "value": "10"
+                },
+                {
+                  "key": "maxCalories",
+                  "value": "500"
+                }
+              ]
+            },
+            "description": "Lọc món ăn theo chỉ số dinh dưỡng"
+          }
+        },
+        {
+          "name": "Search Menu Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu/search?query=tofu&sort=price&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["menu", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "tofu"
+                },
+                {
+                  "key": "sort",
+                  "value": "price"
+                },
+                {
+                  "key": "order",
+                  "value": "asc"
+                }
+              ]
+            },
+            "description": "Tìm kiếm món ăn theo từ khóa"
+          }
+        },
+        {
+          "name": "Get Menu Item By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu/{{menu_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["menu", "{{menu_item_id}}"]
+            },
+            "description": "Lấy thông tin chi tiết món ăn theo ID"
+          }
+        },
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vegan Pad Thai\",\n  \"description\": \"Classic Thai noodles with tofu and vegetables\",\n  \"price\": 12.99,\n  \"category\": \"main\",\n  \"image\": \"https://placekitten.com/500/300\",\n  \"nutritionInfo\": {\n    \"calories\": 450,\n    \"protein\": 15,\n    \"carbs\": 65,\n    \"fat\": 12\n  },\n  \"preparationTime\": 15,\n  \"ingredients\": [\"rice noodles\", \"tofu\", \"bean sprouts\", \"peanuts\", \"lime\"],\n  \"allergens\": [\"peanuts\", \"soy\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/menu",
+              "host": ["{{base_url}}"],
+              "path": ["menu"]
+            },
+            "description": "Tạo món ăn mới (yêu cầu quyền admin)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "description": "Các API gợi ý thông minh dựa trên AI",
+      "item": [
+        {
+          "name": "Get Personalized Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/recommendation/personalized?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "personalized"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Lấy gợi ý món ăn được cá nhân hóa dựa trên lịch sử đặt hàng (yêu cầu đăng nhập)"
+          }
+        },
+        {
+          "name": "Get Birthday Occasion Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recommendation/special-occasion?occasion=birthday&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "special-occasion"],
+              "query": [
+                {
+                  "key": "occasion",
+                  "value": "birthday"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Lấy các món ăn phù hợp cho dịp sinh nhật"
+          }
+        },
+        {
+          "name": "Get Party Occasion Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recommendation/special-occasion?occasion=party&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "special-occasion"],
+              "query": [
+                {
+                  "key": "occasion",
+                  "value": "party"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Lấy các món ăn phù hợp cho tiệc nhóm"
+          }
+        },
+        {
+          "name": "Get Diet Occasion Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recommendation/special-occasion?occasion=diet&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "special-occasion"],
+              "query": [
+                {
+                  "key": "occasion",
+                  "value": "diet"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Lấy các món ăn phù hợp cho người ăn kiêng"
+          }
+        },
+        {
+          "name": "Get Healthy Occasion Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recommendation/special-occasion?occasion=healthy&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "special-occasion"],
+              "query": [
+                {
+                  "key": "occasion",
+                  "value": "healthy"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Lấy các món ăn lành mạnh, giàu dinh dưỡng"
+          }
+        },
+        {
+          "name": "Get Smart Combos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recommendation/combos?size=3",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "combos"],
+              "query": [
+                {
+                  "key": "size",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "Lấy gợi ý combo thông minh với kích thước mong muốn"
+          }
+        },
+        {
+          "name": "Get Smart Combos Based on Item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recommendation/combos?baseItem={{menu_item_id}}&size=3",
+              "host": ["{{base_url}}"],
+              "path": ["recommendation", "combos"],
+              "query": [
+                {
+                  "key": "baseItem",
+                  "value": "{{menu_item_id}}"
+                },
+                {
+                  "key": "size",
+                  "value": "3"
+                }
+              ]
+            },
+            "description": "Lấy gợi ý combo dựa trên món ăn cụ thể"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Quản lý đơn hàng",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"menuItem\": \"{{menu_item_id}}\",\n      \"quantity\": 2,\n      \"price\": 12.99\n    }\n  ],\n  \"totalAmount\": 25.98,\n  \"deliveryAddress\": {\n    \"street\": \"123 Main Street\",\n    \"city\": \"Anytown\",\n    \"state\": \"ST\",\n    \"postalCode\": \"12345\"\n  },\n  \"paymentMethod\": \"card\",\n  \"specialInstructions\": \"Please ring doorbell twice\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/order",
+              "host": ["{{base_url}}"],
+              "path": ["order"]
+            },
+            "description": "Tạo đơn hàng mới (yêu cầu đăng nhập)"
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/order/user/my-orders",
+              "host": ["{{base_url}}"],
+              "path": ["order", "user", "my-orders"]
+            },
+            "description": "Lấy danh sách đơn hàng của người dùng hiện tại"
+          }
+        },
+        {
+          "name": "Get Order By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/order/{{order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["order", "{{order_id}}"]
+            },
+            "description": "Lấy thông tin chi tiết đơn hàng theo ID"
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/order/{{order_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["order", "{{order_id}}", "cancel"]
+            },
+            "description": "Hủy đơn hàng (chỉ áp dụng với đơn hàng đang chờ xử lý)"
+          }
+        },
+        {
+          "name": "Confirm Order Delivery",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/order/{{order_id}}/user/confirm-delivery",
+              "host": ["{{base_url}}"],
+              "path": ["order", "{{order_id}}", "user", "confirm-delivery"]
+            },
+            "description": "Xác nhận đã nhận được đơn hàng"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Các API chỉ dành cho quản trị viên",
+      "item": [
+        {
+          "name": "Get All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/order/admin/all",
+              "host": ["{{base_url}}"],
+              "path": ["order", "admin", "all"]
+            },
+            "description": "Lấy tất cả đơn hàng trong hệ thống (chỉ dành cho admin)"
+          }
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/order/{{order_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["order", "{{order_id}}", "status"]
+            },
+            "description": "Cập nhật trạng thái đơn hàng (chỉ dành cho admin)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Utils",
+      "description": "Các API tiện ích",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Kiểm tra trạng thái hoạt động của API"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "your_access_token_here",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "your_admin_token_here",
+      "type": "string"
+    },
+    {
+      "key": "menu_item_id",
+      "value": "example_menu_item_id",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "example_order_id",
+      "type": "string"
+    }
+  ]
+} 

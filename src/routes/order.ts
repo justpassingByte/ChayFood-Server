@@ -10,6 +10,7 @@ import {
   cancelOrder,
   confirmDelivery 
 } from '../controllers/order-controller';
+import { trackOrderCreation } from '../middleware/userPreferenceMiddleware';
 
 const router = express.Router();
 
@@ -25,8 +26,8 @@ router.get('/user/my-orders', authenticateToken, getUserOrders);
 // Get order by ID
 router.get('/:id', authenticateToken, getOrderById);
 
-// Create order
-router.post('/', authenticateToken, createOrder);
+// Create order - add tracking middleware after order creation
+router.post('/', authenticateToken, createOrder, trackOrderCreation);
 
 // Update order status (admin only)
 router.patch('/:id/status', authenticateToken, updateOrderStatus);

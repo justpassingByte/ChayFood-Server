@@ -12,6 +12,7 @@ import menuRoutes from './routes/menu';
 import orderRoutes from './routes/order';
 import subscriptionRoutes from './routes/subscription';
 import planRoutes from './routes/plan';
+import recommendationRoutes from './routes/recommendationRoutes';
 
 dotenv.config();
 
@@ -56,7 +57,8 @@ app.get('/', (req, res) => {
       auth: '/auth',
       order: '/order',
       subscription: '/subscription',
-      plan: '/plan'
+      plan: '/plan',
+      recommendation: '/recommendation'
     }
   });
 });
@@ -67,6 +69,7 @@ app.use('/menu', menuRoutes);
 app.use('/order', orderRoutes);
 app.use('/subscription', subscriptionRoutes);
 app.use('/plan', planRoutes);
+app.use('/recommendation', recommendationRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -111,4 +114,5 @@ app.listen(PORT, () => {
   console.log('- Order: http://localhost:' + PORT + '/order');
   console.log('- Subscription: http://localhost:' + PORT + '/subscription');
   console.log('- Plan: http://localhost:' + PORT + '/plan');
+  console.log('- Recommendation: http://localhost:' + PORT + '/recommendation');
 }); 
