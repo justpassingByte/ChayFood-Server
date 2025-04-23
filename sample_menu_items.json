@@ -1,0 +1,322 @@
+[
+  {
+    "name": "Phở Chay Đặc Biệt",
+    "description": "Phở thuần chay với nước dùng nấm, đậu phụ và các loại rau thơm tươi, thấm đẫm hương vị truyền thống nhưng hoàn toàn thuần chay.",
+    "price": 55000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 320,
+      "protein": 18,
+      "carbs": 42,
+      "fat": 6
+    },
+    "preparationTime": 12,
+    "ingredients": ["bánh phở", "đậu phụ", "nấm hương", "rau húng quế", "hành ngò", "giá đỗ", "chanh", "ớt"],
+    "allergens": ["gluten", "đậu nành"]
+  },
+  {
+    "name": "Cơm Chiên Dương Châu Chay",
+    "description": "Cơm chiên với đậu phụ xé, nấm, cà rốt và đậu Hà Lan, gia vị đậm đà theo phong cách Dương Châu truyền thống.",
+    "price": 48000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 380,
+      "protein": 15,
+      "carbs": 65,
+      "fat": 8
+    },
+    "preparationTime": 15,
+    "ingredients": ["gạo", "đậu phụ", "nấm", "cà rốt", "đậu Hà Lan", "hành", "tỏi", "xì dầu"],
+    "allergens": ["đậu nành", "gluten"]
+  },
+  {
+    "name": "Bún Chả Giò Chay",
+    "description": "Bún trộn với chả giò chay giòn, rau thơm và nước mắm chay, mang đến hương vị trọn vẹn của món ăn Việt Nam.",
+    "price": 52000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1576577445504-6af96477db52?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 410,
+      "protein": 14,
+      "carbs": 70,
+      "fat": 10
+    },
+    "preparationTime": 18,
+    "ingredients": ["bún", "chả giò chay", "rau xà lách", "rau thơm", "đậu phộng", "nước mắm chay", "ớt", "tỏi"],
+    "allergens": ["gluten", "đậu phộng", "đậu nành"]
+  },
+  {
+    "name": "Bánh Mì Kẹp Chả Lụa Chay",
+    "description": "Bánh mì giòn với chả lụa chay, đồ chua, dưa leo, rau thơm và sốt đặc biệt, tạo nên hương vị đậm đà không thể cưỡng lại.",
+    "price": 35000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 360,
+      "protein": 16,
+      "carbs": 50,
+      "fat": 12
+    },
+    "preparationTime": 10,
+    "ingredients": ["bánh mì", "chả lụa chay", "đồ chua", "dưa leo", "rau thơm", "mayonnaise chay", "tương ớt"],
+    "allergens": ["gluten", "đậu nành"]
+  },
+  {
+    "name": "Gỏi Cuốn Chay",
+    "description": "Gỏi cuốn tươi với đậu phụ chiên, bún, rau thơm và sốt đậu phộng, món ăn nhẹ nhàng và thanh mát.",
+    "price": 42000,
+    "category": "side",
+    "image": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 220,
+      "protein": 12,
+      "carbs": 35,
+      "fat": 5
+    },
+    "preparationTime": 15,
+    "ingredients": ["bánh tráng", "bún", "đậu phụ", "xà lách", "húng quế", "rau thơm", "sốt đậu phộng"],
+    "allergens": ["đậu phộng", "đậu nành"]
+  },
+  {
+    "name": "Salad Trộn Sốt Mè Rang",
+    "description": "Salad rau tươi ngon với sốt mè rang, đậu phụ nướng và hạt điều, mang đến nguồn dinh dưỡng dồi dào cho cơ thể.",
+    "price": 45000,
+    "category": "side",
+    "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 180,
+      "protein": 10,
+      "carbs": 15,
+      "fat": 12
+    },
+    "preparationTime": 10,
+    "ingredients": ["xà lách", "cà chua", "dưa leo", "đậu phụ nướng", "hạt điều", "mè rang", "dầu olive", "chanh"],
+    "allergens": ["hạt điều", "mè", "đậu nành"]
+  },
+  {
+    "name": "Súp Nấm Truffle",
+    "description": "Súp nấm kem với hương vị truffle, món khai vị sang trọng và đầy hương vị tinh tế.",
+    "price": 65000,
+    "category": "side",
+    "image": "https://images.unsplash.com/photo-1605493725255-a3ef9c30fa34?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 220,
+      "protein": 8,
+      "carbs": 22,
+      "fat": 14
+    },
+    "preparationTime": 20,
+    "ingredients": ["nấm hương", "nấm đông cô", "kem dừa", "tinh dầu truffle", "hành tây", "tỏi", "thì là"],
+    "allergens": ["dừa"]
+  },
+  {
+    "name": "Khoai Tây Chiên Trứng Muối",
+    "description": "Khoai tây chiên giòn phủ bột trứng muối chay, món ăn vặt lý tưởng với hương vị mặn béo đặc trưng.",
+    "price": 38000,
+    "category": "side",
+    "image": "https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 280,
+      "protein": 5,
+      "carbs": 40,
+      "fat": 15
+    },
+    "preparationTime": 15,
+    "ingredients": ["khoai tây", "đậu phụ", "nghệ", "muối đen", "tiêu", "bột tỏi"],
+    "allergens": ["đậu nành"]
+  },
+  {
+    "name": "Bánh Flan Đậu Nành",
+    "description": "Bánh flan mềm mịn từ sữa đậu nành và caramel đường thốt nốt, món tráng miệng nhẹ nhàng cho bữa ăn thêm trọn vẹn.",
+    "price": 28000,
+    "category": "dessert",
+    "image": "https://images.unsplash.com/photo-1488477181946-6428a0a36077?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 180,
+      "protein": 6,
+      "carbs": 25,
+      "fat": 8
+    },
+    "preparationTime": 25,
+    "ingredients": ["sữa đậu nành", "đường thốt nốt", "tinh chất vanilla", "bột agar"],
+    "allergens": ["đậu nành"]
+  },
+  {
+    "name": "Chè Khúc Bạch",
+    "description": "Chè khúc bạch với đậu đỏ, thạch trái cây và nước cốt dừa, món tráng miệng mát lạnh và ngọt dịu.",
+    "price": 30000,
+    "category": "dessert",
+    "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 200,
+      "protein": 4,
+      "carbs": 40,
+      "fat": 6
+    },
+    "preparationTime": 30,
+    "ingredients": ["đậu đỏ", "thạch trái cây", "nước cốt dừa", "đường phèn", "đá bào"],
+    "allergens": ["dừa"]
+  },
+  {
+    "name": "Bánh Chocolate Lava",
+    "description": "Bánh chocolate lava chảy với nhân chocolate, kết hợp cùng kem dừa, tạo nên trải nghiệm ngọt ngào khó quên.",
+    "price": 48000,
+    "category": "dessert",
+    "image": "https://images.unsplash.com/photo-1616486447077-f8d3f7bae6b7?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 320,
+      "protein": 7,
+      "carbs": 45,
+      "fat": 18
+    },
+    "preparationTime": 25,
+    "ingredients": ["bột mì", "cacao", "đường", "dầu dừa", "chocolate chay", "kem dừa"],
+    "allergens": ["gluten", "dừa", "đậu nành"]
+  },
+  {
+    "name": "Bánh Bông Lan Chà Xanh",
+    "description": "Bánh bông lan mềm xốp với hương vị trà xanh tinh tế, phủ kem đậu nành nhẹ nhàng.",
+    "price": 35000,
+    "category": "dessert",
+    "image": "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 250,
+      "protein": 5,
+      "carbs": 40,
+      "fat": 10
+    },
+    "preparationTime": 20,
+    "ingredients": ["bột mì", "bột trà xanh", "đường", "dầu thực vật", "kem đậu nành"],
+    "allergens": ["gluten", "đậu nành"]
+  },
+  {
+    "name": "Smoothie Xoài Đá Xay",
+    "description": "Smoothie xoài mát lạnh với đá xay, hạt chia và sữa dừa, thức uống giải khát hoàn hảo cho ngày nắng.",
+    "price": 38000,
+    "category": "beverage",
+    "image": "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 160,
+      "protein": 3,
+      "carbs": 35,
+      "fat": 4
+    },
+    "preparationTime": 8,
+    "ingredients": ["xoài chín", "đá", "sữa dừa", "hạt chia", "chanh", "đường mật ong"],
+    "allergens": ["dừa"]
+  },
+  {
+    "name": "Trà Sen Vàng",
+    "description": "Trà sen vàng thơm ngát với hạt sen tươi và lá nếp, thức uống thanh mát mang đậm hương vị truyền thống.",
+    "price": 32000,
+    "category": "beverage",
+    "image": "https://images.unsplash.com/photo-1544795835-4872c7d0a0c6?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 90,
+      "protein": 1,
+      "carbs": 20,
+      "fat": 0
+    },
+    "preparationTime": 10,
+    "ingredients": ["trà xanh", "hạt sen", "lá nếp", "đường phèn"],
+    "allergens": []
+  },
+  {
+    "name": "Sinh Tố Bơ Đậu Phộng",
+    "description": "Sinh tố bơ béo ngậy với đậu phộng và sữa hạnh nhân, cung cấp năng lượng dồi dào và vị ngon khó cưỡng.",
+    "price": 42000,
+    "category": "beverage",
+    "image": "https://images.unsplash.com/photo-1628557044797-f21a177c37ec?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 280,
+      "protein": 10,
+      "carbs": 25,
+      "fat": 18
+    },
+    "preparationTime": 8,
+    "ingredients": ["bơ", "đậu phộng", "sữa hạnh nhân", "đá", "mật ong"],
+    "allergens": ["đậu phộng", "hạnh nhân"]
+  },
+  {
+    "name": "Cà Phê Dừa Đá Xay",
+    "description": "Cà phê đá xay với kem dừa và caramel, thức uống năng lượng hoàn hảo cho buổi sáng tràn đầy sinh lực.",
+    "price": 45000,
+    "category": "beverage",
+    "image": "https://images.unsplash.com/photo-1596078841242-2ce29274dc74?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 220,
+      "protein": 4,
+      "carbs": 30,
+      "fat": 12
+    },
+    "preparationTime": 8,
+    "ingredients": ["cà phê", "đá", "kem dừa", "sốt caramel chay", "đường nâu"],
+    "allergens": ["dừa"]
+  },
+  {
+    "name": "Đậu Hũ Sốt Cay Tứ Xuyên",
+    "description": "Đậu hũ mềm sốt cay Tứ Xuyên đậm đà, phủ đậu phộng và hành lá, một món mặn hoàn hảo cho bữa tối.",
+    "price": 58000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1512058454905-6b841e7ad132?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 380,
+      "protein": 20,
+      "carbs": 30,
+      "fat": 22
+    },
+    "preparationTime": 18,
+    "ingredients": ["đậu hũ", "ớt Tứ Xuyên", "hành lá", "tỏi", "gừng", "đậu phộng", "dầu mè"],
+    "allergens": ["đậu nành", "đậu phộng", "mè"]
+  },
+  {
+    "name": "Bún Đậu Mắm Tôm Chay",
+    "description": "Bún đậu với đậu hũ chiên giòn và mắm tôm chay thơm ngon, kèm rau thơm và ớt tươi.",
+    "price": 55000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1627308595171-d1b5d67129c4?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 400,
+      "protein": 22,
+      "carbs": 50,
+      "fat": 15
+    },
+    "preparationTime": 15,
+    "ingredients": ["bún", "đậu hũ chiên", "mắm tôm chay", "rau thơm", "ớt", "chanh"],
+    "allergens": ["đậu nành"]
+  },
+  {
+    "name": "Cháo Nấm Thập Cẩm",
+    "description": "Cháo nấm thập cẩm với đậu phụ, hạt sen và rau thơm, món ăn ấm áp và bổ dưỡng cho ngày mưa.",
+    "price": 42000,
+    "category": "main",
+    "image": "https://images.unsplash.com/photo-1604502075400-fb428f8c8374?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 280,
+      "protein": 14,
+      "carbs": 48,
+      "fat": 4
+    },
+    "preparationTime": 25,
+    "ingredients": ["gạo", "nấm hương", "nấm đông cô", "đậu phụ", "hạt sen", "ngò", "hành phi"],
+    "allergens": ["đậu nành"]
+  },
+  {
+    "name": "Chả Giò Nấm",
+    "description": "Chả giò giòn rụm với nhân nấm, miến và rau củ, kèm nước mắm chay chua ngọt đặc trưng.",
+    "price": 48000,
+    "category": "side",
+    "image": "https://images.unsplash.com/photo-1552611052-dd922d8f9603?auto=format&fit=crop&q=80&w=1000",
+    "nutritionInfo": {
+      "calories": 320,
+      "protein": 8,
+      "carbs": 40,
+      "fat": 16
+    },
+    "preparationTime": 20,
+    "ingredients": ["bánh tráng", "nấm", "miến", "cà rốt", "củ sắn", "nước mắm chay"],
+    "allergens": ["gluten"]
+  }
+] 

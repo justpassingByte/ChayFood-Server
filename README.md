@@ -16,6 +16,9 @@ A robust Node.js backend for the ChayFood vegan food delivery platform built wit
 - 🔍 Advanced Search Engine for Menu Items
 - 🗓️ Subscription-based Meal Plans
 - 📊 Flexible Plan Management
+- 🧠 AI-Powered Menu Recommendations
+- 🎉 Special Occasion Menu Filtering
+- 🍱 Smart Combo Suggestions
 
 ## Prerequisites
 
@@ -103,6 +106,19 @@ src/
 - `POST /menu` - Create menu item (admin only)
 - `PUT /menu/:id` - Update menu item (admin only)
 - `DELETE /menu/:id` - Delete menu item (admin only)
+
+### Recommendations
+- `GET /recommendation/personalized` - Get AI-powered personalized menu recommendations
+  - Query params:
+    - `limit` (optional): Number of recommendations to return (default: 5)
+- `GET /recommendation/special-occasion` - Filter menu items by special occasion
+  - Query params:
+    - `occasion` (required): Type of occasion - 'birthday', 'party', 'diet', 'healthy'
+    - `limit` (optional): Number of results (default: 10)
+- `GET /recommendation/combos` - Get smart combo suggestions
+  - Query params:
+    - `baseItem` (optional): Menu item ID to base combo recommendations on
+    - `size` (optional): Combo size (number of items, default: 3)
 
 ### Orders
 - `GET /order` - Get all orders (admin) or user's orders (legacy route)
@@ -391,6 +407,11 @@ The controllers handle the business logic for each endpoint:
 - `updateOrderStatus`: Update order status (admin only)
 - `cancelOrder`: Cancel an order (if it's pending)
 
+### RecommendationController
+- `getPersonalizedRecommendations`: Get AI-powered menu recommendations based on user's order history and preferences
+- `getSpecialOccasionItems`: Filter menu items suitable for specific occasions
+- `getSmartCombos`: Generate intelligent combo recommendations based on trending orders or popular combinations
+
 ## Data Models
 
 ### MenuItem
@@ -437,6 +458,31 @@ The controllers handle the business logic for each endpoint:
   paymentMethod: 'cod' | 'card' | 'banking';
   deliveryTime?: Date;
   specialInstructions?: string;
+}
+```
+
+### UserPreference
+```typescript
+{
+  user: ObjectId;
+  favoriteCategories: string[];
+  dislikedIngredients: string[];
+  preferredNutrition: {
+    minProtein?: number;
+    maxCalories?: number;
+  };
+  dietaryRestrictions: string[];
+  favoriteItems: ObjectId[];  // References to MenuItem
+  lastViewedItems: ObjectId[];  // References to MenuItem
+}
+```
+
+### MenuItemTag
+```typescript
+{
+  menuItem: ObjectId;  // Reference to MenuItem
+  tags: string[];  // Tags for special occasions like 'birthday', 'party', 'diet', 'healthy'
+  recommendedWith: ObjectId[];  // Other menu items frequently ordered together
 }
 ```
 
@@ -493,3 +539,39 @@ No request body is required. Authentication token must be provided.
 ## Subscription-based Meal Plans
 
 ChayFood offers flexible subscription-based meal plans that can be fully customized.
+
+## Setup Sample Data
+
+To setup sample menu items in your database:
+
+1. Make sure you have MongoDB running and properly configured in your `.env` file with `MONGODB_URI`.
+
+2. Install the dependencies:
+```
+npm install
+```
+
+3. Run the import script:
+```
+node import_menu_items.js
+```
+
+4. To bypass the confirmation prompt and force import:
+```
+node import_menu_items.js --force
+```
+
+## Sample Data
+
+The sample data includes 40 Vietnamese vegetarian menu items with detailed information including:
+- Name (both Vietnamese and English)
+- Description
+- Price
+- Category
+- Images
+- Nutritional information
+- Preparation time
+- Ingredients
+- Allergens
+
+The data is stored in `sample_menu_items.json`.
