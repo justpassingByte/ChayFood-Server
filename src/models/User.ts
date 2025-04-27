@@ -1,12 +1,25 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+export interface UserAddress {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  additionalInfo?: string;
+  isDefault: boolean;
+}
+
 export interface IUser extends mongoose.Document {
   email: string;
   password?: string;
   name: string;
   phone?: string;
   address?: string;
+  addresses?: UserAddress[];
+  dietaryPreferences?: string[];
   role: 'user' | 'admin';
   googleId?: string;
   facebookId?: string;
@@ -42,6 +55,49 @@ const userSchema = new mongoose.Schema({
     required: false,
     trim: true,
   },
+  addresses: [{
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: () => new mongoose.Types.ObjectId()
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    street: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    postalCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    additionalInfo: {
+      type: String,
+      trim: true,
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    }
+  }],
+  dietaryPreferences: [{
+    type: String,
+    trim: true,
+  }],
   role: {
     type: String,
     enum: ['user', 'admin'],

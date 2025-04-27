@@ -8,7 +8,8 @@ import {
   createOrder, 
   updateOrderStatus, 
   cancelOrder,
-  confirmDelivery 
+  confirmDelivery,
+  reorderPreviousOrder
 } from '../controllers/order-controller';
 import { trackOrderCreation } from '../middleware/userPreferenceMiddleware';
 
@@ -28,6 +29,9 @@ router.get('/:id', authenticateToken, getOrderById);
 
 // Create order - add tracking middleware after order creation
 router.post('/', authenticateToken, createOrder, trackOrderCreation);
+
+// Reorder a previous order (quick reorder)
+router.post('/reorder/:orderId', authenticateToken, reorderPreviousOrder);
 
 // Update order status (admin only)
 router.patch('/:id/status', authenticateToken, updateOrderStatus);
