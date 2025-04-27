@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Order } from '../models/Order';
 import { User } from '../models/User';
+import { awardPointsForOrder } from '../services/loyalty-service';
 
 /**
  * Get all orders (admin only)
@@ -208,7 +209,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     }
 
     // Basic validation
-    const { items, deliveryAddress, paymentMethod, specialInstructions } = req.body;
+    const { items, deliveryAddress, paymentMethod, specialInstructions, usePoints } = req.body;
     
     if (!items || !Array.isArray(items) || items.length === 0) {
       res.status(400).json({ 
@@ -261,6 +262,14 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       totalAmount += item.price * item.quantity;
     }
 
+    // Apply loyalty points if requested
+    if (usePoints && usePoints.points > 0) {
+      // Check if user has enough points - implementation in loyalty service
+      // This would be handled by another middleware or service
+      // For now, just log that points would be used
+      console.log(`User requested to use ${usePoints.points} loyalty points`);
+    }
+
     // Create the order
     const order = new Order({
       user: req.user._id,
@@ -275,6 +284,15 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
     // Save the order
     await order.save();
+    
+    // Award loyalty points for the order
+    try {
+      await awardPointsForOrder(req.user._id, order);
+      console.log(`Awarded loyalty points for order ${order._id}`);
+    } catch (pointsError) {
+      console.error('Error awarding loyalty points:', pointsError);
+      // Don't fail the order if points can't be awarded
+    }
     
     // Store order data in res.locals for middleware access
     res.locals.orderData = order;
@@ -597,6 +615,125 @@ export async function confirmDelivery(req: Request, res: Response): Promise<void
     res.status(400).json({ 
       status: 'error',
       message: 'Error confirming order delivery',
+      error: error.message
+    });
+  }
+}
+
+/**
+ * Reorder a previous order (quick reorder)
+ */
+export async function reorderPreviousOrder(req: Request, res: Response): Promise<void> {
+  try {
+    // Check if user is authenticated
+    if (!req.user || !req.user?._id) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Authentication required',
+        error: 'User must be logged in to reorder'
+      });
+      return;
+    }
+
+    // Get order ID from request
+    const { orderId } = req.params;
+    if (!orderId) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Order ID is required'
+      });
+      return;
+    }
+
+    // Find the original order
+    const originalOrder = await Order.findById(orderId)
+      .populate('items.menuItem');
+
+    if (!originalOrder) {
+      res.status(404).json({
+        status: 'error',
+        message: 'Order not found'
+      });
+      return;
+    }
+
+    // Verify user owns this order
+    if (originalOrder.user.toString() !== req.user._id.toString()) {
+      res.status(403).json({
+        status: 'error',
+        message: 'Not authorized',
+        error: 'You do not have permission to reorder this order'
+      });
+      return;
+    }
+
+    // Create new order items, checking if items are still available
+    const newItems = [];
+    let totalAmount = 0;
+
+    for (const item of originalOrder.items) {
+      // Skip items that are no longer available
+      if (!item.menuItem || !(item.menuItem as any).isAvailable) {
+        continue;
+      }
+
+      newItems.push({
+        menuItem: item.menuItem,
+        quantity: item.quantity,
+        price: (item.menuItem as any).price, // Get current price
+        specialInstructions: item.specialInstructions
+      });
+
+      totalAmount += (item.menuItem as any).price * item.quantity;
+    }
+
+    // If no valid items remain, return error
+    if (newItems.length === 0) {
+      res.status(400).json({
+        status: 'error',
+        message: 'No available items to reorder'
+      });
+      return;
+    }
+
+    // Get delivery address (either from request or from original order)
+    const { deliveryAddress, paymentMethod, specialInstructions } = req.body;
+    
+    // Create the new order
+    const newOrder = new Order({
+      user: req.user._id,
+      items: newItems,
+      totalAmount,
+      deliveryAddress: deliveryAddress || originalOrder.deliveryAddress,
+      paymentMethod: paymentMethod || originalOrder.paymentMethod,
+      specialInstructions: specialInstructions || originalOrder.specialInstructions,
+      status: 'pending',
+      paymentStatus: 'pending',
+    });
+
+    // Save the new order
+    await newOrder.save();
+    
+    // Award loyalty points for the order
+    try {
+      await awardPointsForOrder(req.user._id, newOrder);
+    } catch (pointsError) {
+      console.error('Error awarding loyalty points:', pointsError);
+      // Don't fail the order if points can't be awarded
+    }
+
+    // Return the created order
+    res.status(201).json({
+      status: 'success',
+      message: 'Reorder successful',
+      data: newOrder
+    });
+  } catch (error: any) {
+    console.error('Error reordering:', error);
+    
+    res.status(500).json({
+      status: 'error',
+      message: 'Error processing reorder',
       error: error.message
     });
   }

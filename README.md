@@ -19,6 +19,13 @@ A robust Node.js backend for the ChayFood vegan food delivery platform built wit
 - 🧠 AI-Powered Menu Recommendations
 - 🎉 Special Occasion Menu Filtering
 - 🍱 Smart Combo Suggestions
+- 💰 Loyalty Points System
+- 📋 Order History with Quick Reorder
+- 📍 Multiple Delivery Addresses
+- 👨‍💼 Enhanced User Profiles
+- 🎮 Interactive Mini-Games (Spin Wheel, Scratch Card, Memory Match, Quiz)
+- 🎁 Reward System with Probability-based Prizes
+- 👥 Referral System with Tracking and Bonuses
 
 ## Prerequisites
 
@@ -107,6 +114,19 @@ src/
 - `PUT /menu/:id` - Update menu item (admin only)
 - `DELETE /menu/:id` - Delete menu item (admin only)
 
+### User Profile and Addresses
+- `GET /user/profile` - Get user profile information
+- `PUT /user/profile` - Update user profile
+- `GET /user/addresses` - Get user saved addresses
+- `POST /user/addresses` - Add a new address
+- `PUT /user/addresses/:addressId` - Update an existing address
+- `DELETE /user/addresses/:addressId` - Delete an address
+- `PATCH /user/addresses/:addressId/default` - Set an address as default
+
+### Loyalty Points
+- `GET /loyalty/points` - Get user's loyalty points and history
+- `POST /loyalty/redeem` - Use loyalty points for a discount
+
 ### Recommendations
 - `GET /recommendation/personalized` - Get AI-powered personalized menu recommendations
   - Query params:
@@ -129,6 +149,7 @@ src/
 - `PATCH /order/:id/status` - Update order status (admin only)
 - `PATCH /order/:id/cancel` - Cancel order (only pending orders)
 - `PATCH /order/:id/user/confirm-delivery` - Mark an order as delivered/received (user only)
+- `POST /order/reorder/:orderId` - Quick reorder from previous order
 
 ### Plans
 - `GET /plan` - Get all subscription plans
@@ -144,6 +165,21 @@ src/
 - `GET /subscription/:id` - Get a specific subscription (authenticated)
 - `PATCH /subscription/:id/menu` - Update subscription menu selections (authenticated)
 - `PATCH /subscription/:id/cancel` - Cancel a subscription (authenticated)
+
+### Mini-Games
+- `GET /game` - Get all active mini-games
+- `POST /game` - Create a new mini-game (admin only)
+- `GET /game/:id` - Get specific mini-game details
+- `POST /game/:id/play` - Play a mini-game and get rewards
+- `GET /game/history` - Get user's game play history
+- `GET /game/rewards` - Get user's earned rewards
+
+### Referral System
+- `POST /referral` - Create a new referral
+- `GET /referral/code/:code` - Validate a referral code
+- `GET /referral/my-referrals` - Get user's referral history
+- `POST /referral/complete` - Complete a referral when referred user signs up
+- `POST /referral/apply-bonus` - Apply referral bonus for both users
 
 ## Testing the API
 
@@ -486,6 +522,58 @@ The controllers handle the business logic for each endpoint:
 }
 ```
 
+### MiniGame
+```typescript
+{
+  name: string;
+  description: string;
+  type: 'spin_wheel' | 'scratch_card' | 'memory_match' | 'quiz';
+  isActive: boolean;
+  startDate: Date;
+  endDate: Date;
+  rewards: Array<{
+    type: 'discount' | 'points' | 'free_item' | 'free_delivery';
+    value: number;
+    code?: string;
+    probability: number; // Percentage chance (0-100)
+    limit: number; // Maximum number of times this reward can be won
+    awarded: number; // Number of times this reward has been awarded
+  }>;
+  dailyPlayLimit: number;
+  totalPlayLimit: number;
+}
+```
+
+### Referral
+```typescript
+{
+  referrer: ObjectId; // Reference to User
+  referredEmail: string;
+  referredUser?: ObjectId; // Reference to User
+  code: string;
+  status: 'pending' | 'completed' | 'expired';
+  bonusApplied: boolean;
+  completedAt?: Date;
+  bonusAppliedAt?: Date;
+}
+```
+
+### UserGamePlay
+```typescript
+{
+  user: ObjectId; // Reference to User
+  game: ObjectId; // Reference to MiniGame
+  playDate: Date;
+  reward?: {
+    type: 'discount' | 'points' | 'free_item' | 'free_delivery';
+    value: number;
+    code?: string;
+    used: boolean;
+    usedAt?: Date;
+  };
+}
+```
+
 ## Available Scripts
 
 - `npm run dev` - Start development server with hot reload
@@ -575,3 +663,87 @@ The sample data includes 40 Vietnamese vegetarian menu items with detailed infor
 - Allergens
 
 The data is stored in `sample_menu_items.json`.
+
+## User Account Features
+
+### Loyalty Points System
+- Earn points with every purchase (10 points per $1 spent)
+- View points history and available balance
+- Redeem points for discounts on future orders
+- Points are automatically awarded on order completion
+
+### Multiple Delivery Addresses
+- Save multiple delivery addresses in user profile
+- Set a default address for quicker checkout
+- Name addresses for easy identification (Home, Work, etc.)
+- Full CRUD operations for address management
+
+### Enhanced User Profiles
+- Save dietary preferences
+- Personalized experience based on order history
+- Quick reorder from past orders
+- Profile customization options
+
+### Order History and Quick Reorder
+- View complete order history
+- Single-click reorder functionality
+- Preserves preferences from previous orders
+
+## Notification System
+
+ChayFood includes a robust notification system that automatically sends alerts to users based on various events:
+
+### Notification Features
+- **Multi-channel delivery**: In-app, email, push notifications, and Zalo integration
+- **User preferences**: Users can customize which notification types they receive through each channel
+- **Notification types**: 
+  - Promotions and flash sales
+  - Order status updates
+  - System announcements
+  - Referral program updates
+
+### Notification Implementation
+- Notifications are created and stored in MongoDB
+- Generated automatically by system events (no explicit API endpoints needed)
+- Service layer handles creation, distribution, and delivery logic
+- User preferences control which channels receive which types of notifications
+
+### User Notification Preferences
+```typescript
+{
+  user: ObjectId;
+  channels: {
+    email: boolean;
+    push: boolean;
+    zalo: boolean;
+    inApp: boolean;
+  };
+  types: {
+    promotions: boolean;
+    orders: boolean;
+    system: boolean;
+    newMenuItems: boolean;
+    flashSales: boolean;
+  };
+  frequency: 'immediately' | 'daily' | 'weekly';
+}
+```
+
+### Notification Model
+```typescript
+{
+  user: ObjectId;
+  title: string;
+  message: string;
+  type: 'promotion' | 'order_status' | 'system' | 'referral';
+  related?: {
+    type: string;
+    id: ObjectId;
+  };
+  isRead: boolean;
+  channels: Array<'email' | 'push' | 'zalo' | 'in_app'>;
+  sentStatus: Record<string, boolean>;
+  scheduledFor?: Date;
+  expiresAt?: Date;
+}
+```

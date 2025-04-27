@@ -13,6 +13,9 @@ import orderRoutes from './routes/order';
 import subscriptionRoutes from './routes/subscription';
 import planRoutes from './routes/plan';
 import recommendationRoutes from './routes/recommendationRoutes';
+import userRoutes from './routes/user';
+import loyaltyRoutes from './routes/loyalty';
+import promotionRoutes from './routes/promotion';
 
 dotenv.config();
 
@@ -70,6 +73,9 @@ app.use('/order', orderRoutes);
 app.use('/subscription', subscriptionRoutes);
 app.use('/plan', planRoutes);
 app.use('/recommendation', recommendationRoutes);
+app.use('/user', userRoutes);
+app.use('/loyalty', loyaltyRoutes);
+app.use('/promotion', promotionRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -115,4 +121,7 @@ app.listen(PORT, () => {
   console.log('- Subscription: http://localhost:' + PORT + '/subscription');
   console.log('- Plan: http://localhost:' + PORT + '/plan');
   console.log('- Recommendation: http://localhost:' + PORT + '/recommendation');
+  console.log('- User: http://localhost:' + PORT + '/user');
+  console.log('- Loyalty: http://localhost:' + PORT + '/loyalty');
+  console.log('- Promotion: http://localhost:' + PORT + '/promotion');
 }); 
