@@ -26,6 +26,8 @@ A robust Node.js backend for the ChayFood vegan food delivery platform built wit
 - 🎮 Interactive Mini-Games (Spin Wheel, Scratch Card, Memory Match, Quiz)
 - 🎁 Reward System with Probability-based Prizes
 - 👥 Referral System with Tracking and Bonuses
+- 🛒 Shopping Cart System with Item Notes
+- 🏷️ Category Management for Menu Organization
 
 ## Prerequisites
 
@@ -139,6 +141,49 @@ src/
   - Query params:
     - `baseItem` (optional): Menu item ID to base combo recommendations on
     - `size` (optional): Combo size (number of items, default: 3)
+
+### Category
+- `GET /category` - Get all categories
+  - Query params:
+    - `isActive` (optional): Filter by active status (`true` or `false`)
+- `GET /category/:id` - Get a specific category by ID
+- `POST /category` - Create a new category (admin only)
+  - Request body:
+    - `name` (required): Category name
+    - `description` (required): Category description
+    - `slug` (required): URL-friendly identifier
+    - `image` (optional): Image URL for the category
+    - `isActive` (optional): Whether the category is active (default: true)
+    - `displayOrder` (optional): Order in which to display the category (default: 0)
+- `PUT /category/:id` - Update a category (admin only)
+  - Request body: Same as POST, all fields optional
+- `DELETE /category/:id` - Delete a category (admin only)
+  - Note: Will fail if any menu items are using this category
+
+### Cart
+- `GET /cart` - Get user's cart (requires authentication)
+- `POST /cart/items` - Add item to cart (requires authentication)
+  - Request body:
+    - `menuItemId` (required): ID of the menu item to add
+    - `quantity` (optional): Number of items to add (default: 1)
+    - `notes` (optional): Special instructions for this item
+- `PUT /cart/items/:cartItemId` - Update cart item (requires authentication)
+  - Request body:
+    - `quantity` (optional): New quantity for the item
+    - `notes` (optional): Updated special instructions
+- `DELETE /cart/items/:cartItemId` - Remove item from cart (requires authentication)
+- `DELETE /cart` - Clear entire cart (requires authentication)
+
+#### Cart System Implementation Details
+- Cart data is stored in MongoDB for persistence and reliability
+- Menu items are fully populated with names, prices, and images
+- Enhanced error handling ensures valid menu items
+- Robust fallback mechanisms for deleted menu items
+- Special instructions/notes support for each item
+- Automatic price recalculation when items change
+- Protection against "Unknown Item" issues with data validation
+- Vietnamese localization for error messages and fallback texts
+- Detailed logging for troubleshooting cart issues
 
 ### Orders
 - `GET /order` - Get all orders (admin) or user's orders (legacy route)
@@ -448,7 +493,33 @@ The controllers handle the business logic for each endpoint:
 - `getSpecialOccasionItems`: Filter menu items suitable for specific occasions
 - `getSmartCombos`: Generate intelligent combo recommendations based on trending orders or popular combinations
 
+### CategoryController
+- `getAllCategories`: Get all categories with optional filter by active status
+- `getCategoryById`: Get a specific category by ID
+- `createCategory`: Create a new category (admin only)
+- `updateCategory`: Update an existing category (admin only) 
+- `deleteCategory`: Delete a category (admin only)
+
+### CartController
+- `getUserCart`: Get or create the user's shopping cart
+- `addToCart`: Add an item to the cart
+- `updateCartItem`: Update quantity or notes for a cart item
+- `removeFromCart`: Remove an item from the cart
+- `clearCart`: Remove all items from the cart
+
 ## Data Models
+
+### Category
+```typescript
+{
+  name: string;
+  description: string;
+  slug: string;
+  image?: string;
+  isActive: boolean;
+  displayOrder: number;
+}
+```
 
 ### MenuItem
 ```typescript
@@ -456,7 +527,7 @@ The controllers handle the business logic for each endpoint:
   name: string;
   description: string;
   price: number;
-  category: 'main' | 'side' | 'dessert' | 'beverage';
+  category: ObjectId;  // Reference to Category
   image: string;
   nutritionInfo: {
     calories: number;  // Total calories per serving
@@ -512,6 +583,30 @@ The controllers handle the business logic for each endpoint:
   lastViewedItems: ObjectId[];  // References to MenuItem
 }
 ```
+
+### Cart
+```typescript
+{
+  user: ObjectId;  // Reference to User
+  items: [{
+    menuItem: ObjectId;  // Reference to MenuItem
+    quantity: number;
+    notes: string;
+  }];
+  lastActive: Date;
+}
+```
+
+#### Cart Implementation Details
+The cart system has been enhanced with:
+- Reliable data population from MenuItem collection
+- Proper reference handling between collections
+- Automatic removal of stale cart items
+- Protection against reference errors when menu items are deleted
+- User-friendly fallback data for missing items ("Món ăn đã bị xóa" - Item has been deleted)
+- Improved error handling in calculateTotal method
+- Efficient database queries with proper indexing
+- Detailed server-side logging for troubleshooting
 
 ### MenuItemTag
 ```typescript
@@ -747,3 +842,6 @@ ChayFood includes a robust notification system that automatically sends alerts t
   expiresAt?: Date;
 }
 ```
+#   C h a y F o o d - S e r v e r 
+ 
+ 
