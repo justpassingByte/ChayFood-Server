@@ -50,6 +50,336 @@
       ]
     },
     {
+      "name": "Analytics",
+      "description": "Phân tích dữ liệu và thống kê",
+      "item": [
+        {
+          "name": "Get Order Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/orders/stats?timeRange=month&region=all&category=all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "orders", "stats"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "month",
+                  "description": "Phạm vi thời gian: day, week, month, quarter, year, custom"
+                },
+                {
+                  "key": "region",
+                  "value": "all",
+                  "description": "Khu vực: North, Central, South, all"
+                },
+                {
+                  "key": "category",
+                  "value": "all",
+                  "description": "Danh mục món ăn: main, side, dessert, beverage, all"
+                }
+              ]
+            },
+            "description": "Lấy thống kê đơn hàng"
+          }
+        },
+        {
+          "name": "Get Order Stats (Custom Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/orders/stats?timeRange=custom&startDate=2023-01-01&endDate=2023-07-01",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "orders", "stats"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "custom"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2023-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2023-07-01"
+                }
+              ]
+            },
+            "description": "Lấy thống kê đơn hàng trong khoảng thời gian tùy chỉnh"
+          }
+        },
+        {
+          "name": "Get Customer Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/customers/stats?timeRange=month&region=all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "customers", "stats"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "month"
+                },
+                {
+                  "key": "region",
+                  "value": "all"
+                }
+              ]
+            },
+            "description": "Lấy thống kê khách hàng"
+          }
+        },
+        {
+          "name": "Get Popular Dishes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/dishes/popular?timeRange=month&region=all&category=all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "dishes", "popular"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "month"
+                },
+                {
+                  "key": "region",
+                  "value": "all"
+                },
+                {
+                  "key": "category",
+                  "value": "all"
+                }
+              ]
+            },
+            "description": "Lấy danh sách món ăn phổ biến nhất"
+          }
+        },
+        {
+          "name": "Get Order Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/orders/trends?timeRange=month",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "orders", "trends"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "month"
+                }
+              ]
+            },
+            "description": "Lấy xu hướng đơn hàng theo thời gian"
+          }
+        },
+        {
+          "name": "Get Regional Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/orders/regional?timeRange=month",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "orders", "regional"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "month"
+                }
+              ]
+            },
+            "description": "Lấy thống kê đơn hàng theo khu vực"
+          }
+        },
+        {
+          "name": "Generate Sample Data",
+          "item": [
+            {
+              "name": "Generate Menu Items",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"count\": 10\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/admin/sample-data/menu-items",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "sample-data", "menu-items"]
+                },
+                "description": "Tạo mẫu món ăn ngẫu nhiên (chỉ dành cho admin/dev)"
+              }
+            },
+            {
+              "name": "Generate Users",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"count\": 20\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/admin/sample-data/users",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "sample-data", "users"]
+                },
+                "description": "Tạo mẫu người dùng ngẫu nhiên (chỉ dành cho admin/dev)"
+              }
+            },
+            {
+              "name": "Generate Orders",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"count\": 50,\n  \"timeRange\": {\n    \"startDate\": \"2023-01-01\",\n    \"endDate\": \"2023-12-31\"\n  },\n  \"distribution\": {\n    \"regions\": {\n      \"North\": 0.4,\n      \"Central\": 0.3,\n      \"South\": 0.3\n    },\n    \"categories\": {\n      \"main\": 0.5,\n      \"side\": 0.2,\n      \"dessert\": 0.2,\n      \"beverage\": 0.1\n    },\n    \"statuses\": {\n      \"delivered\": 0.6,\n      \"cancelled\": 0.1,\n      \"pending\": 0.1,\n      \"confirmed\": 0.1,\n      \"preparing\": 0.1\n    }\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/admin/sample-data/orders",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "sample-data", "orders"]
+                },
+                "description": "Tạo mẫu đơn hàng ngẫu nhiên (chỉ dành cho admin/dev)"
+              }
+            },
+            {
+              "name": "Generate Complete Dataset",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"menuItems\": 20,\n  \"users\": 50,\n  \"orders\": 200,\n  \"timeRange\": {\n    \"startDate\": \"2022-01-01\",\n    \"endDate\": \"2023-12-31\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/admin/sample-data/generate-all",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "sample-data", "generate-all"]
+                },
+                "description": "Tạo bộ dữ liệu mẫu hoàn chỉnh bao gồm món ăn, người dùng và đơn hàng (chỉ dành cho admin/dev)"
+              }
+            },
+            {
+              "name": "Clear Sample Data",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/admin/sample-data/clear?confirm=true",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "admin", "sample-data", "clear"],
+                  "query": [
+                    {
+                      "key": "confirm",
+                      "value": "true"
+                    }
+                  ]
+                },
+                "description": "Xóa toàn bộ dữ liệu mẫu (chỉ dành cho admin/dev)"
+              }
+            }
+          ],
+          "description": "Các API tạo dữ liệu mẫu cho phân tích"
+        }
+      ]
+    },
+    {
       "name": "Menu",
       "description": "Quản lý menu và danh sách món ăn",
       "item": [
@@ -503,6 +833,66 @@
             },
             "description": "Cập nhật trạng thái đơn hàng (chỉ dành cho admin)"
           }
+        },
+        {
+          "name": "Get Customers List (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/customers?page=1&limit=10&search=&sortBy=createdAt&sortOrder=desc",
+              "host": ["{{base_url}}"],
+              "path": ["user", "customers"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            },
+            "description": "Lấy danh sách khách hàng với phân trang, tìm kiếm và sắp xếp. Bao gồm thông tin đơn hàng và chi tiêu của khách hàng (chỉ dành cho admin)"
+          }
+        },
+        {
+          "name": "Get Customer Detail (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/customers/{{customer_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["user", "customers", "{{customer_id}}"]
+            },
+            "description": "Lấy thông tin chi tiết của khách hàng, bao gồm thống kê đơn hàng và các đơn hàng gần đây (chỉ dành cho admin)"
+          }
         }
       ]
     },
@@ -570,6 +960,11 @@
     {
       "key": "order_id",
       "value": "example_order_id",
+      "type": "string"
+    },
+    {
+      "key": "customer_id",
+      "value": "example_customer_id",
       "type": "string"
     }
   ]
