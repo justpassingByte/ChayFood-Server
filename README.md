@@ -28,6 +28,41 @@ A robust Node.js backend for the ChayFood vegan food delivery platform built wit
 - 👥 Referral System with Tracking and Bonuses
 - 🛒 Shopping Cart System with Item Notes
 - 🏷️ Category Management for Menu Organization
+- 📈 Business Analytics for Revenue and Order Tracking
+- 🧪 Sample Data Generation for Development and Testing
+
+## Analytics API Features
+
+The ChayFood API includes comprehensive analytics endpoints for business intelligence:
+
+### Order Analytics
+- Historical order data with flexible time range filtering
+- Regional distribution analysis across North, Central, and South Vietnam
+- Revenue tracking and trends visualization
+- Category-based performance analysis
+- Custom date range support for precise reporting
+
+### Customer Analytics
+- New vs returning customer metrics
+- Customer acquisition trend analysis
+- Regional customer distribution
+- Order frequency and value statistics
+
+### Menu Item Analytics
+- Best-selling items ranked by quantity and revenue
+- Category performance analysis
+- Item popularity trends over time
+- Regional preference insights
+
+### Sample Data Generation
+For development and testing purposes, the API includes endpoints to generate realistic Vietnamese sample data:
+
+- Generate menu items with Vietnamese cuisine options
+- Create sample users with Vietnamese names and addresses
+- Generate orders with realistic distribution across regions
+- Configure distribution patterns for different item categories
+- Simulate order statuses with appropriate timestamps
+- Create complete datasets with configurable parameters
 
 ## Prerequisites
 
@@ -159,6 +194,51 @@ src/
   - Request body: Same as POST, all fields optional
 - `DELETE /category/:id` - Delete a category (admin only)
   - Note: Will fail if any menu items are using this category
+
+### Analytics
+- `GET /api/analytics/orders/stats` - Get order statistics
+  - Query params:
+    - `timeRange` (optional): Time period - 'day', 'week', 'month', 'quarter', 'year', 'custom' (default: 'month')
+    - `region` (optional): Region filter - 'North', 'Central', 'South', 'all' (default: 'all')
+    - `category` (optional): Food category filter (default: 'all')
+    - `startDate`, `endDate` (required if timeRange is 'custom'): Date format YYYY-MM-DD
+- `GET /api/analytics/customers/stats` - Get customer statistics
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+    - `region` (optional): Region filter (default: 'all')
+- `GET /api/analytics/dishes/popular` - Get popular dishes ranking
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+    - `region` (optional): Region filter (default: 'all')
+    - `category` (optional): Food category filter (default: 'all')
+- `GET /api/analytics/orders/trends` - Get order trend data
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+- `GET /api/analytics/orders/regional` - Get regional order distribution
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+
+### Sample Data Generation (Admin Only)
+- `POST /api/admin/sample-data/menu-items` - Generate sample menu items
+  - Request body:
+    - `count` (optional): Number of items to generate (default: 10, max: 100)
+- `POST /api/admin/sample-data/users` - Generate sample users
+  - Request body:
+    - `count` (optional): Number of users to generate (default: 20, max: 100)
+- `POST /api/admin/sample-data/orders` - Generate sample orders
+  - Request body:
+    - `count` (optional): Number of orders to generate (default: 50, max: 500)
+    - `timeRange` (optional): Date range for orders
+    - `distribution` (optional): Distribution weights for regions, categories, and statuses
+- `POST /api/admin/sample-data/generate-all` - Generate complete dataset
+  - Request body:
+    - `menuItems` (optional): Number of menu items (default: 20)
+    - `users` (optional): Number of users (default: 50)
+    - `orders` (optional): Number of orders (default: 200)
+    - `timeRange` (optional): Date range for orders
+- `DELETE /api/admin/sample-data/clear` - Clear all sample data
+  - Query params:
+    - `confirm` (required): Must be 'true' to proceed
 
 ### Cart
 - `GET /cart` - Get user's cart (requires authentication)
