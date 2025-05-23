@@ -16,6 +16,10 @@ import recommendationRoutes from './routes/recommendationRoutes';
 import userRoutes from './routes/user';
 import loyaltyRoutes from './routes/loyalty';
 import promotionRoutes from './routes/promotion';
+import categoryRoutes from './routes/category';
+import cartRoutes from './routes/cart';
+import analyticsRoutes from './routes/analytics';
+import reviewRoutes from './routes/review';
 
 dotenv.config();
 
@@ -61,7 +65,10 @@ app.get('/', (req, res) => {
       order: '/order',
       subscription: '/subscription',
       plan: '/plan',
-      recommendation: '/recommendation'
+      recommendation: '/recommendation',
+      category: '/category',
+      cart: '/cart',
+      analytics: '/api/analytics'
     }
   });
 });
@@ -73,9 +80,13 @@ app.use('/order', orderRoutes);
 app.use('/subscription', subscriptionRoutes);
 app.use('/plan', planRoutes);
 app.use('/recommendation', recommendationRoutes);
-app.use('/user', userRoutes);
+app.use('/admin', userRoutes);
 app.use('/loyalty', loyaltyRoutes);
 app.use('/promotion', promotionRoutes);
+app.use('/category', categoryRoutes);
+app.use('/cart', cartRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/review', reviewRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -124,4 +135,8 @@ app.listen(PORT, () => {
   console.log('- User: http://localhost:' + PORT + '/user');
   console.log('- Loyalty: http://localhost:' + PORT + '/loyalty');
   console.log('- Promotion: http://localhost:' + PORT + '/promotion');
+  console.log('- Category: http://localhost:' + PORT + '/category');
+  console.log('- Cart: http://localhost:' + PORT + '/cart');
+  console.log('- Analytics: http://localhost:' + PORT + '/api/analytics');
+  console.log('- Review: http://localhost:' + PORT + '/review');
 }); 

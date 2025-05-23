@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { MenuItem } from '../models/MenuItem';
+import { Category } from '../models/Category';
 
 /**
  * Get all menu items, with optional category filter
@@ -49,7 +50,7 @@ export async function getAllMenuItems(req: Request, res: Response): Promise<void
       }
     }
     
-    const menuItems = await MenuItem.find(filter);
+    const menuItems = await MenuItem.find(filter).populate('category', 'name slug');
     res.json(menuItems);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching menu items' });
@@ -132,6 +133,7 @@ export async function searchMenuItems(req: Request, res: Response): Promise<void
     // Execute query with pagination and sorting
     const [menuItems, total] = await Promise.all([
       MenuItem.find(searchFilter)
+        .populate('category', 'name slug')
         .sort(sortOptions)
         .skip(skip)
         .limit(numLimit),
@@ -188,7 +190,7 @@ export async function getNutritionalMenuItems(req: Request, res: Response): Prom
  */
 export async function getMenuItemById(req: Request, res: Response): Promise<void> {
   try {
-    const menuItem = await MenuItem.findById(req.params.id);
+    const menuItem = await MenuItem.findById(req.params.id).populate('category', 'name slug description');
     if (!menuItem) {
       res.status(404).json({ message: 'Menu item not found' });
       return;
@@ -216,9 +218,23 @@ export async function createMenuItem(req: Request, res: Response): Promise<void>
     // Log the request body to help debug
     console.log('Attempting to create menu item with data:', JSON.stringify(req.body, null, 2));
 
+    // Validate that the category exists
+    if (req.body.category) {
+      const categoryExists = await Category.findById(req.body.category);
+      if (!categoryExists) {
+        res.status(400).json({
+          status: 'error',
+          message: 'Invalid category',
+          error: `Category with ID ${req.body.category} does not exist`
+        });
+        return;
+      }
+    }
+
     const menuItem = new MenuItem(req.body);
     await menuItem.save();
-    res.status(201).json(menuItem);
+    const populatedMenuItem = await MenuItem.findById(menuItem._id).populate('category', 'name slug');
+    res.status(201).json(populatedMenuItem);
   } catch (error: any) {
     console.error('Error creating menu item:', error);
     
@@ -274,6 +290,19 @@ export async function updateMenuItem(req: Request, res: Response): Promise<void>
       return;
     }
 
+    // Validate that the category exists if it's being updated
+    if (req.body.category) {
+      const categoryExists = await Category.findById(req.body.category);
+      if (!categoryExists) {
+        res.status(400).json({
+          status: 'error',
+          message: 'Invalid category',
+          error: `Category with ID ${req.body.category} does not exist`
+        });
+        return;
+      }
+    }
+
     // Convert price from string to number if needed
     if (req.body.price && typeof req.body.price === 'string') {
       req.body.price = parseFloat(req.body.price);
@@ -313,7 +342,7 @@ export async function updateMenuItem(req: Request, res: Response): Promise<void>
         }
 
         // Fetch the updated item to return
-        const updatedItem = await MenuItem.findById(req.params.id);
+        const updatedItem = await MenuItem.findById(req.params.id).populate('category', 'name slug');
         console.log('Price updated successfully using alternative method:', updatedItem);
         
         res.json({
@@ -337,7 +366,7 @@ export async function updateMenuItem(req: Request, res: Response): Promise<void>
       req.params.id,
       req.body,
       updateOptions
-    );
+    ).populate('category', 'name slug');
 
     if (!menuItem) {
       res.status(404).json({ 

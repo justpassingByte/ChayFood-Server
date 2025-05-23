@@ -25,6 +25,8 @@ export interface IUser extends mongoose.Document {
   facebookId?: string;
   picture?: string;
   comparePassword?(candidatePassword: string): Promise<boolean>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const userSchema = new mongoose.Schema({

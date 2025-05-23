@@ -16,7 +16,7 @@ const generateTestToken = () => {
   
   // Create a test user payload
   const testUser = {
-    _id: '123456789012345678901234', // Changed from id to _id to match controller expectations
+    _id: '680ddea659097f00bc0a9e35', // Changed from id to _id to match controller expectations
     email: 'test@example.com',
     role: 'user', // Change to 'admin' for admin access
   };
