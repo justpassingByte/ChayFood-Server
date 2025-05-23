@@ -21,9 +21,9 @@ const menuItemSchema = new mongoose_1.default.Schema({
         min: 0,
     },
     category: {
-        type: String,
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Category',
         required: true,
-        enum: ['main', 'side', 'dessert', 'beverage'],
     },
     image: {
         type: String,
@@ -76,4 +76,5 @@ menuItemSchema.methods.getProtein = function () {
 // Add index for querying by nutrition values
 menuItemSchema.index({ 'nutritionInfo.calories': 1 });
 menuItemSchema.index({ 'nutritionInfo.protein': 1 });
+menuItemSchema.index({ category: 1 });
 exports.MenuItem = mongoose_1.default.model('MenuItem', menuItemSchema);

@@ -20,6 +20,10 @@ const recommendationRoutes_1 = __importDefault(require("./routes/recommendationR
 const user_1 = __importDefault(require("./routes/user"));
 const loyalty_1 = __importDefault(require("./routes/loyalty"));
 const promotion_1 = __importDefault(require("./routes/promotion"));
+const category_1 = __importDefault(require("./routes/category"));
+const cart_1 = __importDefault(require("./routes/cart"));
+const analytics_1 = __importDefault(require("./routes/analytics"));
+const review_1 = __importDefault(require("./routes/review"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Middleware
@@ -58,7 +62,10 @@ app.get('/', (req, res) => {
             order: '/order',
             subscription: '/subscription',
             plan: '/plan',
-            recommendation: '/recommendation'
+            recommendation: '/recommendation',
+            category: '/category',
+            cart: '/cart',
+            analytics: '/api/analytics'
         }
     });
 });
@@ -69,9 +76,13 @@ app.use('/order', order_1.default);
 app.use('/subscription', subscription_1.default);
 app.use('/plan', plan_1.default);
 app.use('/recommendation', recommendationRoutes_1.default);
-app.use('/user', user_1.default);
+app.use('/admin', user_1.default);
 app.use('/loyalty', loyalty_1.default);
 app.use('/promotion', promotion_1.default);
+app.use('/category', category_1.default);
+app.use('/cart', cart_1.default);
+app.use('/api/analytics', analytics_1.default);
+app.use('/review', review_1.default);
 // 404 handler for undefined routes
 app.use((req, res) => {
     console.log(`Route not found: ${req.method} ${req.path}`);
@@ -114,4 +125,8 @@ app.listen(PORT, () => {
     console.log('- User: http://localhost:' + PORT + '/user');
     console.log('- Loyalty: http://localhost:' + PORT + '/loyalty');
     console.log('- Promotion: http://localhost:' + PORT + '/promotion');
+    console.log('- Category: http://localhost:' + PORT + '/category');
+    console.log('- Cart: http://localhost:' + PORT + '/cart');
+    console.log('- Analytics: http://localhost:' + PORT + '/api/analytics');
+    console.log('- Review: http://localhost:' + PORT + '/review');
 });
