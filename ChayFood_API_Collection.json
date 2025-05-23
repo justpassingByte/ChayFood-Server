@@ -509,6 +509,119 @@
       ]
     },
     {
+      "name": "Reviews",
+      "description": "Quản lý đánh giá món ăn từ khách hàng",
+      "item": [
+        {
+          "name": "Get Reviews By Menu Item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/review/menuitem/{{menu_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["review", "menuitem", "{{menu_item_id}}"]
+            },
+            "description": "Lấy tất cả đánh giá của một món ăn cụ thể"
+          }
+        },
+        {
+          "name": "Get User Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/review/user",
+              "host": ["{{base_url}}"],
+              "path": ["review", "user"]
+            },
+            "description": "Lấy tất cả đánh giá của người dùng hiện tại"
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/review/menuitem/{{menu_item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["review", "menuitem", "{{menu_item_id}}"]
+            },
+            "description": "Tạo đánh giá mới cho một món ăn"
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Món ăn ngon nhưng hơi mặn một chút.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/review/{{review_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["review", "{{review_id}}"]
+            },
+            "description": "Cập nhật đánh giá"
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/review/{{review_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["review", "{{review_id}}"]
+            },
+            "description": "Xóa đánh giá"
+          }
+        }
+      ]
+    },
+    {
       "name": "Recommendations",
       "description": "Các API gợi ý thông minh dựa trên AI",
       "item": [
@@ -965,6 +1078,11 @@
     {
       "key": "customer_id",
       "value": "example_customer_id",
+      "type": "string"
+    },
+    {
+      "key": "review_id",
+      "value": "example_review_id",
       "type": "string"
     }
   ]
