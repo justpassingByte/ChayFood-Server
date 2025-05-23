@@ -23,6 +23,8 @@ export interface IOrder extends mongoose.Document {
   paymentMethod: 'cod' | 'card' | 'banking';
   deliveryTime?: Date;
   specialInstructions?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const orderSchema = new mongoose.Schema({
