@@ -15,7 +15,8 @@ interface JwtUserPayload {
   role: string;
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+// Main authentication middleware
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -62,6 +63,43 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
       status: 'error',
       message: errorMessage,
       error: errorDetails
+    });
+  }
+};
+
+// For backward compatibility
+export const authenticateToken = authenticate;
+
+// Admin role check middleware
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Check if user exists in request (set by auth middleware)
+    if (!req.user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Authentication required',
+        error: 'You must be logged in to access this resource'
+      });
+    }
+
+    // Check if user has admin role
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Access denied',
+        error: 'You do not have the necessary permissions to access this resource'
+      });
+    }
+
+    // If user is admin, proceed to the next middleware/controller
+    next();
+  } catch (error: any) {
+    console.error('Error in admin middleware:', error);
+    
+    return res.status(500).json({
+      status: 'error',
+      message: 'Error verifying admin privileges',
+      error: error.message
     });
   }
 }; 

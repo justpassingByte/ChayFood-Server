@@ -306,6 +306,110 @@ src/
 - `POST /referral/complete` - Complete a referral when referred user signs up
 - `POST /referral/apply-bonus` - Apply referral bonus for both users
 
+### Reviews (Đánh giá món ăn)
+
+Chức năng đánh giá cho phép người dùng gửi, xem, cập nhật và xóa đánh giá cho từng món ăn.
+
+#### Các endpoint chính:
+
+- `GET /review/menuitem/:menuItemId` — Lấy tất cả đánh giá của một món ăn cụ thể
+- `GET /review/user` — Lấy tất cả đánh giá của người dùng hiện tại (yêu cầu đăng nhập)
+- `POST /review/menuitem/:menuItemId` — Tạo đánh giá mới cho món ăn (yêu cầu đăng nhập)
+- `PUT /review/:reviewId` — Cập nhật đánh giá (yêu cầu đăng nhập, chỉ người tạo mới được sửa)
+- `DELETE /review/:reviewId` — Xóa đánh giá (yêu cầu đăng nhập, chỉ người tạo hoặc admin mới được xóa)
+
+#### Ví dụ request/response
+
+**Tạo đánh giá mới**
+```http
+POST /review/menuitem/645a1b2c3d4e5f6a7b8c9d0e
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "comment": "Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!"
+}
+```
+
+**Response**
+```json
+{
+  "success": true,
+  "message": "Đánh giá đã được tạo thành công",
+  "data": {
+    "_id": "...",
+    "user": {
+      "_id": "...",
+      "name": "Nguyễn Văn A",
+      "email": "a@example.com",
+      "avatar": "https://i.pravatar.cc/150?img=1"
+    },
+    "menuItem": "645a1b2c3d4e5f6a7b8c9d0e",
+    "rating": 5,
+    "comment": "Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!",
+    "date": "2024-06-01T10:00:00.000Z"
+  }
+}
+```
+
+**Lấy tất cả đánh giá của một món ăn**
+```http
+GET /review/menuitem/645a1b2c3d4e5f6a7b8c9d0e
+```
+**Response**
+```json
+{
+  "success": true,
+  "data": {
+    "reviews": [
+      {
+        "_id": "...",
+        "user": {
+          "_id": "...",
+          "name": "Nguyễn Văn A",
+          "avatar": "https://i.pravatar.cc/150?img=1"
+        },
+        "rating": 5,
+        "comment": "Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!",
+        "date": "2024-06-01T10:00:00.000Z"
+      }
+    ],
+    "totalReviews": 1,
+    "averageRating": 5.0
+  }
+}
+```
+
+**Cập nhật đánh giá**
+```http
+PUT /review/665a1b2c3d4e5f6a7b8c9d0e
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "Món ăn ngon nhưng hơi mặn một chút."
+}
+```
+
+**Xóa đánh giá**
+```http
+DELETE /review/665a1b2c3d4e5f6a7b8c9d0e
+Authorization: Bearer <token>
+```
+
+#### Mô hình dữ liệu Review
+```typescript
+{
+  user: ObjectId; // Reference to User
+  menuItem: ObjectId; // Reference to MenuItem
+  rating: number; // 1-5
+  comment: string;
+  date: Date;
+}
+```
+
 ## Testing the API
 
 ### Generating Test Tokens

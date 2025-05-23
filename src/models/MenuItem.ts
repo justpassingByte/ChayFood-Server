@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
+import { ICategory } from './Category';
 
 export interface IMenuItem extends mongoose.Document {
   name: string;
   description: string;
   price: number;
-  category: 'main' | 'side' | 'dessert' | 'beverage';
+  category: ICategory['_id'];
   image: string;
   nutritionInfo: {
     calories: number;  // Total calories per serving
@@ -34,9 +35,9 @@ const menuItemSchema = new mongoose.Schema({
     min: 0,
   },
   category: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
     required: true,
-    enum: ['main', 'side', 'dessert', 'beverage'],
   },
   image: {
     type: String,
@@ -92,5 +93,6 @@ menuItemSchema.methods.getProtein = function(): number {
 // Add index for querying by nutrition values
 menuItemSchema.index({ 'nutritionInfo.calories': 1 });
 menuItemSchema.index({ 'nutritionInfo.protein': 1 });
+menuItemSchema.index({ category: 1 });
 
 export const MenuItem = mongoose.model<IMenuItem>('MenuItem', menuItemSchema); 
