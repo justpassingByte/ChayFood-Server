@@ -9,7 +9,8 @@
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "init-recommendations": "ts-node src/utils/initializeRecommendations.ts",
-    "migrate-categories": "ts-node src/migrate-categories.ts"
+    "migrate-categories": "ts-node src/migrate-categories.ts",
+    "postinstall": "shx chmod +x node_modules/.bin/tsc"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +41,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-facebook": "^3.0.3",
     "@types/passport-google-oauth20": "^2.0.16",
+    "shx": "^0.4.0",
     "ts-node-dev": "^2.0.0"
   }
 }
