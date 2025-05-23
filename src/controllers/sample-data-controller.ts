@@ -145,6 +145,9 @@ const orderStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered'
 // Payment methods
 const paymentMethods = ['cash', 'card', 'banking', 'momo', 'zaloPay'];
 
+// Khai báo biến categories dùng cho user
+const categories = ['main', 'side', 'dessert', 'beverage'];
+
 /**
  * Generate sample menu items
  */
@@ -160,7 +163,6 @@ export const generateMenuItems = async (req: Request, res: Response) => {
     
     // Generate variations of sample menu items
     const menuItems = [];
-    const categories = ['main', 'side', 'dessert', 'beverage'];
     
     for (let i = 0; i < count; i++) {
       const templateItem = randomChoice(sampleMenuItems);
@@ -322,13 +324,17 @@ export const generateOrders = async (req: Request, res: Response) => {
     for (let i = 0; i < count; i++) {
       // Select random user and their address
       const user = randomChoice(users);
-      const userAddress = user.addresses.find((a: any) => a.isDefault) || user.addresses[0];
+      const userAddress = (user.addresses && user.addresses.length > 0)
+        ? (user.addresses.find((a: any) => a.isDefault) || user.addresses[0])
+        : null;
+      if (!userAddress) continue;
       
       // Determine region based on weighted distribution
       const regionType = randomChoiceWeighted(distribution.regions);
       
       // Filter users by region
       const regionUsers = users.filter(u => {
+        if (!u.addresses || u.addresses.length === 0) return false;
         const address = u.addresses.find((a: any) => a.isDefault) || u.addresses[0];
         const region = vietnameseRegions.find(r => r.state === address.state);
         return region && region.region === regionType;
@@ -336,7 +342,10 @@ export const generateOrders = async (req: Request, res: Response) => {
       
       // If we have users in this region, select one
       const regionUser = regionUsers.length > 0 ? randomChoice(regionUsers) : user;
-      const regionUserAddress = regionUser.addresses.find((a: any) => a.isDefault) || regionUser.addresses[0];
+      const regionUserAddress = (regionUser.addresses && regionUser.addresses.length > 0)
+        ? (regionUser.addresses.find((a: any) => a.isDefault) || regionUser.addresses[0])
+        : null;
+      if (!regionUserAddress) continue;
       
       // Get menu items based on category weights
       const orderItems = [];

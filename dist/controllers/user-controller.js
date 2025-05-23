@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCustomersList = getCustomersList;
 exports.getUserProfile = getUserProfile;
 exports.updateUserProfile = updateUserProfile;
 exports.getUserAddresses = getUserAddresses;
@@ -10,8 +11,104 @@ exports.addUserAddress = addUserAddress;
 exports.updateUserAddress = updateUserAddress;
 exports.deleteUserAddress = deleteUserAddress;
 exports.setDefaultAddress = setDefaultAddress;
+exports.getCustomerById = getCustomerById;
 const User_1 = require("../models/User");
+const Order_1 = require("../models/Order");
 const mongoose_1 = __importDefault(require("mongoose"));
+/**
+ * Get list of all customers (for admin use)
+ * Supports pagination, filtering, and sorting
+ */
+async function getCustomersList(req, res) {
+    try {
+        // Check if user is admin
+        if (!req.user || req.user.role !== 'admin') {
+            res.status(403).json({
+                status: 'error',
+                message: 'Access denied. Admin privileges required.'
+            });
+            return;
+        }
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        // Filtering options
+        const search = req.query.search;
+        const role = req.query.role || 'user'; // Default to showing only customers
+        const sortBy = req.query.sortBy || 'createdAt';
+        const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+        // Build query
+        const query = {};
+        // Add role filter (default to user)
+        if (role) {
+            query.role = role;
+        }
+        // Add search functionality
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { phone: { $regex: search, $options: 'i' } }
+            ];
+        }
+        // Build sort options
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder;
+        // Execute query with pagination
+        const customers = await User_1.User.find(query)
+            .select('_id name email phone createdAt picture')
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(limit);
+        // Get total count for pagination
+        const totalCount = await User_1.User.countDocuments(query);
+        // Fetch additional data for each customer
+        const customerData = await Promise.all(customers.map(async (customer) => {
+            // Get order count
+            const orderCount = await Order_1.Order.countDocuments({ user: customer._id });
+            // Get total spending
+            const orders = await Order_1.Order.find({
+                user: customer._id,
+                status: { $nin: ['cancelled', 'pending'] } // Exclude cancelled and pending orders
+            });
+            const totalSpending = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+            // Use type assertion to include createdAt
+            const customerDoc = customer.toJSON();
+            // Format the customer data
+            return {
+                _id: customerDoc._id,
+                name: customerDoc.name,
+                email: customerDoc.email,
+                phone: customerDoc.phone || 'Not provided',
+                joinDate: customerDoc.createdAt,
+                picture: customerDoc.picture,
+                orderCount,
+                totalSpending
+            };
+        }));
+        res.json({
+            status: 'success',
+            message: 'Customers retrieved successfully',
+            data: {
+                customers: customerData,
+                pagination: {
+                    totalCount,
+                    totalPages: Math.ceil(totalCount / limit),
+                    currentPage: page,
+                    hasMore: page * limit < totalCount
+                }
+            }
+        });
+    }
+    catch (error) {
+        console.error('Error getting customers list:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error getting customers list',
+            error: error.message
+        });
+    }
+}
 /**
  * Get user profile
  */
@@ -384,6 +481,88 @@ async function setDefaultAddress(req, res) {
         res.status(500).json({
             status: 'error',
             message: 'Error setting default address',
+            error: error.message
+        });
+    }
+}
+/**
+ * Get a single customer by ID (for admin use)
+ */
+async function getCustomerById(req, res) {
+    try {
+        // Check if user is admin
+        if (!req.user || req.user.role !== 'admin') {
+            res.status(403).json({
+                status: 'error',
+                message: 'Access denied. Admin privileges required.'
+            });
+            return;
+        }
+        const { id } = req.params;
+        if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Invalid customer ID format'
+            });
+            return;
+        }
+        // Get basic customer info
+        const customer = await User_1.User.findById(id)
+            .select('-password'); // Exclude password field
+        if (!customer) {
+            res.status(404).json({
+                status: 'error',
+                message: 'Customer not found'
+            });
+            return;
+        }
+        // Get order statistics
+        const allOrders = await Order_1.Order.find({ user: id });
+        const completedOrders = allOrders.filter(order => !['cancelled', 'pending'].includes(order.status));
+        // Calculate statistics
+        const orderCount = allOrders.length;
+        const totalSpending = completedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+        const averageOrderValue = orderCount > 0 ? totalSpending / completedOrders.length : 0;
+        // Get last 5 orders
+        const recentOrders = await Order_1.Order.find({ user: id })
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate('items.menuItem', 'name price image');
+        // Use toJSON to get all properties including timestamps
+        const customerObj = customer.toJSON();
+        const recentOrdersObj = recentOrders.map(order => order.toJSON());
+        // Find first and last order dates
+        let firstOrderDate = null;
+        let lastOrderDate = null;
+        if (allOrders.length > 0) {
+            // Sort orders by date
+            const sortedOrders = [...allOrders].sort((a, b) => {
+                const dateA = a.toJSON().createdAt;
+                const dateB = b.toJSON().createdAt;
+                return new Date(dateA).getTime() - new Date(dateB).getTime();
+            });
+            firstOrderDate = sortedOrders[0].toJSON().createdAt;
+            lastOrderDate = sortedOrders[sortedOrders.length - 1].toJSON().createdAt;
+        }
+        // Format response with all required data
+        const customerData = Object.assign(Object.assign({}, customerObj), { statistics: {
+                orderCount,
+                totalSpending,
+                averageOrderValue,
+                firstOrderDate,
+                lastOrderDate
+            }, recentOrders: recentOrdersObj });
+        res.json({
+            status: 'success',
+            message: 'Customer details retrieved successfully',
+            data: customerData
+        });
+    }
+    catch (error) {
+        console.error('Error getting customer details:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error getting customer details',
             error: error.message
         });
     }

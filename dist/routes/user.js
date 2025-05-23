@@ -5,8 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middleware/auth");
+const admin_middleware_1 = require("../middleware/admin-middleware");
 const user_controller_1 = require("../controllers/user-controller");
 const router = express_1.default.Router();
+// Admin routes
+router.get('/customers', auth_1.authenticateToken, admin_middleware_1.adminMiddleware, user_controller_1.getCustomersList);
+router.get('/customers/:id', auth_1.authenticateToken, admin_middleware_1.adminMiddleware, user_controller_1.getCustomerById);
 // Profile routes
 router.get('/profile', auth_1.authenticateToken, user_controller_1.getUserProfile);
 router.put('/profile', auth_1.authenticateToken, user_controller_1.updateUserProfile);

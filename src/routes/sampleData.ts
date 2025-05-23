@@ -1,11 +1,11 @@
 import express from 'express';
 import { generateMenuItems, generateUsers, generateOrders, generateAll, clearSampleData } from '../controllers/sample-data-controller';
-import { authenticateAdmin } from '../middleware/authMiddleware';
+import { adminMiddleware } from '../middleware/admin-middleware';
 
 const router = express.Router();
 
 // All routes require admin authentication
-router.use(authenticateAdmin);
+router.use(adminMiddleware);
 
 // Generate sample menu items
 router.post('/menu-items', generateMenuItems);
