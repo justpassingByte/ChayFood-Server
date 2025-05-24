@@ -25,11 +25,13 @@
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.8.6",
+    "multer": "^2.0.0",
     "node-cron": "^3.0.3",
     "nodemailer": "^7.0.3",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
+    "stripe": "^18.1.1",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
@@ -39,6 +41,7 @@
     "@types/express": "^4.17.21",
     "@types/express-session": "^1.18.1",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/multer": "^1.4.12",
     "@types/node": "^18.19.86",
     "@types/passport": "^1.0.17",
     "@types/passport-facebook": "^3.0.3",

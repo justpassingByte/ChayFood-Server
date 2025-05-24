@@ -97,7 +97,6 @@ export async function getCustomersList(req: Request, res: Response): Promise<voi
           _id: customerDoc._id,
           name: customerDoc.name,
           email: customerDoc.email,
-          phone: customerDoc.phone || 'Not provided',
           joinDate: customerDoc.createdAt,
           picture: customerDoc.picture,
           orderCount,
@@ -269,10 +268,10 @@ export async function addUserAddress(req: Request, res: Response): Promise<void>
       return;
     }
 
-    const { name, street, city, state, postalCode, additionalInfo, isDefault } = req.body;
+    const { name, street, city, state, postalCode, additionalInfo, isDefault, phone } = req.body;
 
     // Validate required fields
-    if (!name || !street || !city || !state || !postalCode) {
+    if (!name || !street || !city || !state || !postalCode || !phone) {
       res.status(400).json({
         status: 'error',
         message: 'Missing required address fields'
@@ -282,11 +281,12 @@ export async function addUserAddress(req: Request, res: Response): Promise<void>
 
     const newAddress = {
       _id: new mongoose.Types.ObjectId(),
-      name,
-      street,
-      city,
-      state,
-      postalCode,
+      name: String(name),
+      street: String(street),
+      city: String(city),
+      state: String(state),
+      postalCode: String(postalCode),
+      phone: String(phone),
       additionalInfo: additionalInfo || '',
       isDefault: isDefault || false
     };
@@ -347,7 +347,7 @@ export async function updateUserAddress(req: Request, res: Response): Promise<vo
     }
 
     const { addressId } = req.params;
-    const { name, street, city, state, postalCode, additionalInfo, isDefault } = req.body;
+    const { name, street, city, state, postalCode, additionalInfo, isDefault, phone } = req.body;
 
     if (!addressId) {
       res.status(400).json({
@@ -388,6 +388,7 @@ export async function updateUserAddress(req: Request, res: Response): Promise<vo
     if (state) updatedAddress.state = state;
     if (postalCode) updatedAddress.postalCode = postalCode;
     if (additionalInfo !== undefined) updatedAddress.additionalInfo = additionalInfo;
+    if (phone) updatedAddress.phone = phone;
 
     // Handle default address
     if (isDefault) {
@@ -648,6 +649,56 @@ export async function getCustomerById(req: Request, res: Response): Promise<void
     res.status(500).json({
       status: 'error',
       message: 'Error getting customer details',
+      error: error.message
+    });
+  }
+}
+
+/**
+ * Get full user profile (all info in one response)
+ */
+export async function getFullUserProfile(req: Request, res: Response): Promise<void> {
+  try {
+    if (!req.user || !req.user._id) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Authentication required'
+      });
+      return;
+    }
+
+    // Lấy user với đầy đủ các trường cần thiết
+    const user = await User.findById(req.user._id)
+      .select('-password') // loại bỏ password
+      .lean();
+
+    if (!user) {
+      res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+      return;
+    }
+
+    // Có thể lấy thêm các thông tin liên quan ở đây nếu cần
+    // Ví dụ: tổng số đơn hàng, tổng chi tiêu, v.v.
+    // const orders = await Order.find({ user: req.user._id });
+    // const totalOrders = orders.length;
+    // const totalSpent = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+
+    res.json({
+      status: 'success',
+      message: 'Full user profile retrieved successfully',
+      data: user
+      // Có thể bổ sung các trường khác nếu cần
+      // totalOrders,
+      // totalSpent
+    });
+  } catch (error: any) {
+    console.error('Error getting full user profile:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error getting full user profile',
       error: error.message
     });
   }

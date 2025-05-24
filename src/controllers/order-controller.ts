@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Order } from '../models/Order';
-import { User } from '../models/User';
 import { awardPointsForOrder } from '../services/loyalty-service';
 
 /**
@@ -736,5 +735,127 @@ export async function reorderPreviousOrder(req: Request, res: Response): Promise
       message: 'Error processing reorder',
       error: error.message
     });
+  }
+}
+
+/**
+ * Get order by Stripe session ID
+ */
+export async function getOrderBySessionId(req: Request, res: Response): Promise<void> {
+  try {
+    const { sessionId } = req.params;
+    console.log('Fetching order by session ID:', sessionId);
+    
+    if (!sessionId) {
+      console.log('Missing sessionId parameter');
+      res.status(400).json({ status: 'error', message: 'Missing sessionId' });
+      return;
+    }
+    
+    console.log('Looking for order with stripeSessionId:', sessionId);
+    const order = await Order.findOne({ stripeSessionId: sessionId }).populate('items.menuItem');
+    
+    if (!order) {
+      console.log('No order found with stripeSessionId:', sessionId);
+      
+      // For debugging: Check if any orders have stripeSessionId field
+      const allOrders = await Order.find({ stripeSessionId: { $exists: true } });
+      console.log('Orders with stripeSessionId field:', allOrders.length);
+      if (allOrders.length > 0) {
+        console.log('Sample stripeSessionId values:', allOrders.map(o => o.stripeSessionId));
+      }
+      
+      // Fallback: Try to fetch the session from Stripe and create the order if webhook hasn't processed it yet
+      try {
+        console.log('Attempting to fetch session from Stripe as fallback');
+        const stripe = require('../config/stripe').default;
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        if (session && session.payment_status === 'paid') {
+          console.log('Found paid session in Stripe, creating order as fallback');
+          
+          // Check if we have the necessary data in session metadata
+          if (!session.metadata?.items) {
+            console.error('Session metadata missing items');
+            res.status(404).json({ status: 'error', message: 'Order not found and session metadata incomplete' });
+            return;
+          }
+          
+          try {
+            // Parse metadata
+            const items = JSON.parse(session.metadata.items);
+            const deliveryAddress = JSON.parse(session.metadata.deliveryAddress);
+            const paymentMethod = session.metadata.paymentMethod;
+            const specialInstructions = session.metadata.specialInstructions;
+            let userId;
+            
+            if (session.metadata.user) {
+              const userData = JSON.parse(session.metadata.user);
+              userId = userData._id;
+            } else if (session.customer_details?.email) {
+              // Try to find user by email if no user ID in metadata
+              const User = require('../models/User').User;
+              const user = await User.findOne({ email: session.customer_details.email });
+              if (user) {
+                userId = user._id;
+              }
+            }
+            
+            if (!userId) {
+              // If we still can't determine the user, use the authenticated user
+              if (req.user && req.user._id) {
+                userId = req.user._id;
+              } else {
+                console.error('Could not determine user for order');
+                res.status(404).json({ status: 'error', message: 'Order not found and user could not be determined' });
+                return;
+              }
+            }
+            
+            // Create new order
+            const newOrder = new Order({
+              user: userId,
+              items: items.map((item: any) => ({
+                menuItem: item.menuItem,
+                quantity: item.quantity,
+                price: item.price,
+                specialInstructions: item.specialInstructions || ''
+              })),
+              totalAmount: parseFloat(session.metadata.totalAmount),
+              deliveryAddress,
+              paymentMethod,
+              specialInstructions,
+              status: 'confirmed',
+              paymentStatus: 'paid',
+              stripePaymentId: session.payment_intent,
+              stripeSessionId: session.id
+            });
+            
+            await newOrder.save();
+            console.log(`Created new order from session as fallback: ${newOrder._id}`);
+            
+            // Return the newly created order
+            const populatedOrder = await Order.findById(newOrder._id).populate('items.menuItem');
+            res.json({ status: 'success', data: populatedOrder });
+            return;
+          } catch (parseError) {
+            console.error('Error parsing session metadata:', parseError);
+          }
+        } else {
+          console.log('Session not paid or not found in Stripe');
+        }
+      } catch (stripeError) {
+        console.error('Error fetching session from Stripe:', stripeError);
+      }
+      
+      res.status(404).json({ status: 'error', message: 'Order not found' });
+      return;
+    }
+    
+    console.log('Found order with ID:', order._id);
+    res.json({ status: 'success', data: order });
+  } catch (error: any) {
+    console.error('Error in getOrderBySessionId:', error);
+    res.status(500).json({ status: 'error', message: error.message });
   }
 } 

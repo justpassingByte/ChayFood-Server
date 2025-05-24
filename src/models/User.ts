@@ -7,6 +7,7 @@ export interface UserAddress {
   street: string;
   city: string;
   state: string;
+  phone: string;
   postalCode: string;
   additionalInfo?: string;
   isDefault: boolean;
@@ -16,7 +17,6 @@ export interface IUser extends mongoose.Document {
   email: string;
   password?: string;
   name: string;
-  phone?: string;
   address?: string;
   addresses?: UserAddress[];
   dietaryPreferences?: string[];
@@ -49,11 +49,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  phone: {
-    type: String,
-    required: false,
-    trim: true,
-  },
   address: {
     type: String,
     required: false,
@@ -80,6 +75,11 @@ const userSchema = new mongoose.Schema({
       trim: true,
     },
     state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
       type: String,
       required: true,
       trim: true,
