@@ -24,6 +24,8 @@ export interface IUser extends mongoose.Document {
   googleId?: string;
   facebookId?: string;
   picture?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   comparePassword?(candidatePassword: string): Promise<boolean>;
   createdAt: Date;
   updatedAt: Date;
@@ -117,6 +119,12 @@ const userSchema = new mongoose.Schema({
   },
   picture: {
     type: String,
+  },
+  resetPasswordToken: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
   },
 }, {
   timestamps: true,
