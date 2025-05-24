@@ -62,9 +62,12 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     message: 'ChayFood API is running',
+    time: new Date().toISOString(),
+    version: process.env.npm_package_version || 'unknown',
+    node_env: process.env.NODE_ENV || 'development',
     endpoints: {
       menu: '/menu',
       auth: '/auth',
@@ -75,7 +78,12 @@ app.get('/', (req, res) => {
       category: '/category',
       cart: '/cart',
       analytics: '/api/analytics',
-      payment: '/payment'
+      payment: '/payment',
+      user: '/user',
+      loyalty: '/loyalty',
+      promotion: '/promotion',
+      review: '/review',
+      admin: '/admin',
     }
   });
 });
