@@ -5,7 +5,9 @@ import {
   login, 
   handleOAuthCallback, 
   checkAuthStatus, 
-  logout 
+  logout, 
+  forgotPassword,
+  resetPassword
 } from '../controllers/auth-controller';
 import { authenticateToken } from '../middleware/auth';
 
@@ -14,6 +16,10 @@ const router = express.Router();
 // Email/password authentication
 router.post('/register', register);
 router.post('/login', login);
+
+// Password reset
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 // Google OAuth2 routes
 router.get(

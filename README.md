@@ -26,6 +26,43 @@ A robust Node.js backend for the ChayFood vegan food delivery platform built wit
 - 🎮 Interactive Mini-Games (Spin Wheel, Scratch Card, Memory Match, Quiz)
 - 🎁 Reward System with Probability-based Prizes
 - 👥 Referral System with Tracking and Bonuses
+- 🛒 Shopping Cart System with Item Notes
+- 🏷️ Category Management for Menu Organization
+- 📈 Business Analytics for Revenue and Order Tracking
+- 🧪 Sample Data Generation for Development and Testing
+
+## Analytics API Features
+
+The ChayFood API includes comprehensive analytics endpoints for business intelligence:
+
+### Order Analytics
+- Historical order data with flexible time range filtering
+- Regional distribution analysis across North, Central, and South Vietnam
+- Revenue tracking and trends visualization
+- Category-based performance analysis
+- Custom date range support for precise reporting
+
+### Customer Analytics
+- New vs returning customer metrics
+- Customer acquisition trend analysis
+- Regional customer distribution
+- Order frequency and value statistics
+
+### Menu Item Analytics
+- Best-selling items ranked by quantity and revenue
+- Category performance analysis
+- Item popularity trends over time
+- Regional preference insights
+
+### Sample Data Generation
+For development and testing purposes, the API includes endpoints to generate realistic Vietnamese sample data:
+
+- Generate menu items with Vietnamese cuisine options
+- Create sample users with Vietnamese names and addresses
+- Generate orders with realistic distribution across regions
+- Configure distribution patterns for different item categories
+- Simulate order statuses with appropriate timestamps
+- Create complete datasets with configurable parameters
 
 ## Prerequisites
 
@@ -140,6 +177,94 @@ src/
     - `baseItem` (optional): Menu item ID to base combo recommendations on
     - `size` (optional): Combo size (number of items, default: 3)
 
+### Category
+- `GET /category` - Get all categories
+  - Query params:
+    - `isActive` (optional): Filter by active status (`true` or `false`)
+- `GET /category/:id` - Get a specific category by ID
+- `POST /category` - Create a new category (admin only)
+  - Request body:
+    - `name` (required): Category name
+    - `description` (required): Category description
+    - `slug` (required): URL-friendly identifier
+    - `image` (optional): Image URL for the category
+    - `isActive` (optional): Whether the category is active (default: true)
+    - `displayOrder` (optional): Order in which to display the category (default: 0)
+- `PUT /category/:id` - Update a category (admin only)
+  - Request body: Same as POST, all fields optional
+- `DELETE /category/:id` - Delete a category (admin only)
+  - Note: Will fail if any menu items are using this category
+
+### Analytics
+- `GET /api/analytics/orders/stats` - Get order statistics
+  - Query params:
+    - `timeRange` (optional): Time period - 'day', 'week', 'month', 'quarter', 'year', 'custom' (default: 'month')
+    - `region` (optional): Region filter - 'North', 'Central', 'South', 'all' (default: 'all')
+    - `category` (optional): Food category filter (default: 'all')
+    - `startDate`, `endDate` (required if timeRange is 'custom'): Date format YYYY-MM-DD
+- `GET /api/analytics/customers/stats` - Get customer statistics
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+    - `region` (optional): Region filter (default: 'all')
+- `GET /api/analytics/dishes/popular` - Get popular dishes ranking
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+    - `region` (optional): Region filter (default: 'all')
+    - `category` (optional): Food category filter (default: 'all')
+- `GET /api/analytics/orders/trends` - Get order trend data
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+- `GET /api/analytics/orders/regional` - Get regional order distribution
+  - Query params:
+    - `timeRange` (optional): Time period (default: 'month')
+
+### Sample Data Generation (Admin Only)
+- `POST /api/admin/sample-data/menu-items` - Generate sample menu items
+  - Request body:
+    - `count` (optional): Number of items to generate (default: 10, max: 100)
+- `POST /api/admin/sample-data/users` - Generate sample users
+  - Request body:
+    - `count` (optional): Number of users to generate (default: 20, max: 100)
+- `POST /api/admin/sample-data/orders` - Generate sample orders
+  - Request body:
+    - `count` (optional): Number of orders to generate (default: 50, max: 500)
+    - `timeRange` (optional): Date range for orders
+    - `distribution` (optional): Distribution weights for regions, categories, and statuses
+- `POST /api/admin/sample-data/generate-all` - Generate complete dataset
+  - Request body:
+    - `menuItems` (optional): Number of menu items (default: 20)
+    - `users` (optional): Number of users (default: 50)
+    - `orders` (optional): Number of orders (default: 200)
+    - `timeRange` (optional): Date range for orders
+- `DELETE /api/admin/sample-data/clear` - Clear all sample data
+  - Query params:
+    - `confirm` (required): Must be 'true' to proceed
+
+### Cart
+- `GET /cart` - Get user's cart (requires authentication)
+- `POST /cart/items` - Add item to cart (requires authentication)
+  - Request body:
+    - `menuItemId` (required): ID of the menu item to add
+    - `quantity` (optional): Number of items to add (default: 1)
+    - `notes` (optional): Special instructions for this item
+- `PUT /cart/items/:cartItemId` - Update cart item (requires authentication)
+  - Request body:
+    - `quantity` (optional): New quantity for the item
+    - `notes` (optional): Updated special instructions
+- `DELETE /cart/items/:cartItemId` - Remove item from cart (requires authentication)
+- `DELETE /cart` - Clear entire cart (requires authentication)
+
+#### Cart System Implementation Details
+- Cart data is stored in MongoDB for persistence and reliability
+- Menu items are fully populated with names, prices, and images
+- Enhanced error handling ensures valid menu items
+- Robust fallback mechanisms for deleted menu items
+- Special instructions/notes support for each item
+- Automatic price recalculation when items change
+- Protection against "Unknown Item" issues with data validation
+- Vietnamese localization for error messages and fallback texts
+- Detailed logging for troubleshooting cart issues
+
 ### Orders
 - `GET /order` - Get all orders (admin) or user's orders (legacy route)
 - `GET /order/admin/all` - Get all orders (admin only)
@@ -180,6 +305,110 @@ src/
 - `GET /referral/my-referrals` - Get user's referral history
 - `POST /referral/complete` - Complete a referral when referred user signs up
 - `POST /referral/apply-bonus` - Apply referral bonus for both users
+
+### Reviews (Đánh giá món ăn)
+
+Chức năng đánh giá cho phép người dùng gửi, xem, cập nhật và xóa đánh giá cho từng món ăn.
+
+#### Các endpoint chính:
+
+- `GET /review/menuitem/:menuItemId` — Lấy tất cả đánh giá của một món ăn cụ thể
+- `GET /review/user` — Lấy tất cả đánh giá của người dùng hiện tại (yêu cầu đăng nhập)
+- `POST /review/menuitem/:menuItemId` — Tạo đánh giá mới cho món ăn (yêu cầu đăng nhập)
+- `PUT /review/:reviewId` — Cập nhật đánh giá (yêu cầu đăng nhập, chỉ người tạo mới được sửa)
+- `DELETE /review/:reviewId` — Xóa đánh giá (yêu cầu đăng nhập, chỉ người tạo hoặc admin mới được xóa)
+
+#### Ví dụ request/response
+
+**Tạo đánh giá mới**
+```http
+POST /review/menuitem/645a1b2c3d4e5f6a7b8c9d0e
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "comment": "Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!"
+}
+```
+
+**Response**
+```json
+{
+  "success": true,
+  "message": "Đánh giá đã được tạo thành công",
+  "data": {
+    "_id": "...",
+    "user": {
+      "_id": "...",
+      "name": "Nguyễn Văn A",
+      "email": "a@example.com",
+      "avatar": "https://i.pravatar.cc/150?img=1"
+    },
+    "menuItem": "645a1b2c3d4e5f6a7b8c9d0e",
+    "rating": 5,
+    "comment": "Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!",
+    "date": "2024-06-01T10:00:00.000Z"
+  }
+}
+```
+
+**Lấy tất cả đánh giá của một món ăn**
+```http
+GET /review/menuitem/645a1b2c3d4e5f6a7b8c9d0e
+```
+**Response**
+```json
+{
+  "success": true,
+  "data": {
+    "reviews": [
+      {
+        "_id": "...",
+        "user": {
+          "_id": "...",
+          "name": "Nguyễn Văn A",
+          "avatar": "https://i.pravatar.cc/150?img=1"
+        },
+        "rating": 5,
+        "comment": "Món ăn rất ngon, tôi rất thích hương vị đặc biệt của nó!",
+        "date": "2024-06-01T10:00:00.000Z"
+      }
+    ],
+    "totalReviews": 1,
+    "averageRating": 5.0
+  }
+}
+```
+
+**Cập nhật đánh giá**
+```http
+PUT /review/665a1b2c3d4e5f6a7b8c9d0e
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "Món ăn ngon nhưng hơi mặn một chút."
+}
+```
+
+**Xóa đánh giá**
+```http
+DELETE /review/665a1b2c3d4e5f6a7b8c9d0e
+Authorization: Bearer <token>
+```
+
+#### Mô hình dữ liệu Review
+```typescript
+{
+  user: ObjectId; // Reference to User
+  menuItem: ObjectId; // Reference to MenuItem
+  rating: number; // 1-5
+  comment: string;
+  date: Date;
+}
+```
 
 ## Testing the API
 
@@ -448,7 +677,33 @@ The controllers handle the business logic for each endpoint:
 - `getSpecialOccasionItems`: Filter menu items suitable for specific occasions
 - `getSmartCombos`: Generate intelligent combo recommendations based on trending orders or popular combinations
 
+### CategoryController
+- `getAllCategories`: Get all categories with optional filter by active status
+- `getCategoryById`: Get a specific category by ID
+- `createCategory`: Create a new category (admin only)
+- `updateCategory`: Update an existing category (admin only) 
+- `deleteCategory`: Delete a category (admin only)
+
+### CartController
+- `getUserCart`: Get or create the user's shopping cart
+- `addToCart`: Add an item to the cart
+- `updateCartItem`: Update quantity or notes for a cart item
+- `removeFromCart`: Remove an item from the cart
+- `clearCart`: Remove all items from the cart
+
 ## Data Models
+
+### Category
+```typescript
+{
+  name: string;
+  description: string;
+  slug: string;
+  image?: string;
+  isActive: boolean;
+  displayOrder: number;
+}
+```
 
 ### MenuItem
 ```typescript
@@ -456,7 +711,7 @@ The controllers handle the business logic for each endpoint:
   name: string;
   description: string;
   price: number;
-  category: 'main' | 'side' | 'dessert' | 'beverage';
+  category: ObjectId;  // Reference to Category
   image: string;
   nutritionInfo: {
     calories: number;  // Total calories per serving
@@ -512,6 +767,30 @@ The controllers handle the business logic for each endpoint:
   lastViewedItems: ObjectId[];  // References to MenuItem
 }
 ```
+
+### Cart
+```typescript
+{
+  user: ObjectId;  // Reference to User
+  items: [{
+    menuItem: ObjectId;  // Reference to MenuItem
+    quantity: number;
+    notes: string;
+  }];
+  lastActive: Date;
+}
+```
+
+#### Cart Implementation Details
+The cart system has been enhanced with:
+- Reliable data population from MenuItem collection
+- Proper reference handling between collections
+- Automatic removal of stale cart items
+- Protection against reference errors when menu items are deleted
+- User-friendly fallback data for missing items ("Món ăn đã bị xóa" - Item has been deleted)
+- Improved error handling in calculateTotal method
+- Efficient database queries with proper indexing
+- Detailed server-side logging for troubleshooting
 
 ### MenuItemTag
 ```typescript
@@ -747,3 +1026,6 @@ ChayFood includes a robust notification system that automatically sends alerts t
   expiresAt?: Date;
 }
 ```
+#   C h a y F o o d - S e r v e r 
+ 
+ 

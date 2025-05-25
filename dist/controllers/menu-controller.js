@@ -8,6 +8,7 @@ exports.createMenuItem = createMenuItem;
 exports.updateMenuItem = updateMenuItem;
 exports.deleteMenuItem = deleteMenuItem;
 const MenuItem_1 = require("../models/MenuItem");
+const Category_1 = require("../models/Category");
 /**
  * Get all menu items, with optional category filter
  */
@@ -38,7 +39,7 @@ async function getAllMenuItems(req, res) {
                 filter.nutritionInfo['protein'] = Object.assign(Object.assign({}, filter.nutritionInfo['protein']), { $lte: Number(maxProtein) });
             }
         }
-        const menuItems = await MenuItem_1.MenuItem.find(filter);
+        const menuItems = await MenuItem_1.MenuItem.find(filter).populate('category', 'name slug');
         res.json(menuItems);
     }
     catch (error) {
@@ -106,6 +107,7 @@ async function searchMenuItems(req, res) {
         // Execute query with pagination and sorting
         const [menuItems, total] = await Promise.all([
             MenuItem_1.MenuItem.find(searchFilter)
+                .populate('category', 'name slug')
                 .sort(sortOptions)
                 .skip(skip)
                 .limit(numLimit),
@@ -154,7 +156,7 @@ async function getNutritionalMenuItems(req, res) {
  */
 async function getMenuItemById(req, res) {
     try {
-        const menuItem = await MenuItem_1.MenuItem.findById(req.params.id);
+        const menuItem = await MenuItem_1.MenuItem.findById(req.params.id).populate('category', 'name slug description');
         if (!menuItem) {
             res.status(404).json({ message: 'Menu item not found' });
             return;
@@ -181,9 +183,22 @@ async function createMenuItem(req, res) {
         }
         // Log the request body to help debug
         console.log('Attempting to create menu item with data:', JSON.stringify(req.body, null, 2));
+        // Validate that the category exists
+        if (req.body.category) {
+            const categoryExists = await Category_1.Category.findById(req.body.category);
+            if (!categoryExists) {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid category',
+                    error: `Category with ID ${req.body.category} does not exist`
+                });
+                return;
+            }
+        }
         const menuItem = new MenuItem_1.MenuItem(req.body);
         await menuItem.save();
-        res.status(201).json(menuItem);
+        const populatedMenuItem = await MenuItem_1.MenuItem.findById(menuItem._id).populate('category', 'name slug');
+        res.status(201).json(populatedMenuItem);
     }
     catch (error) {
         console.error('Error creating menu item:', error);
@@ -235,6 +250,18 @@ async function updateMenuItem(req, res) {
             });
             return;
         }
+        // Validate that the category exists if it's being updated
+        if (req.body.category) {
+            const categoryExists = await Category_1.Category.findById(req.body.category);
+            if (!categoryExists) {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid category',
+                    error: `Category with ID ${req.body.category} does not exist`
+                });
+                return;
+            }
+        }
         // Convert price from string to number if needed
         if (req.body.price && typeof req.body.price === 'string') {
             req.body.price = parseFloat(req.body.price);
@@ -266,7 +293,7 @@ async function updateMenuItem(req, res) {
                     return;
                 }
                 // Fetch the updated item to return
-                const updatedItem = await MenuItem_1.MenuItem.findById(req.params.id);
+                const updatedItem = await MenuItem_1.MenuItem.findById(req.params.id).populate('category', 'name slug');
                 console.log('Price updated successfully using alternative method:', updatedItem);
                 res.json({
                     status: 'success',
@@ -284,7 +311,7 @@ async function updateMenuItem(req, res) {
             new: true, // Return the updated document
             runValidators: true // Run model validators
         };
-        const menuItem = await MenuItem_1.MenuItem.findByIdAndUpdate(req.params.id, req.body, updateOptions);
+        const menuItem = await MenuItem_1.MenuItem.findByIdAndUpdate(req.params.id, req.body, updateOptions).populate('category', 'name slug');
         if (!menuItem) {
             res.status(404).json({
                 status: 'error',

@@ -1,6 +1,132 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User';
+import { User, IUser } from '../models/User';
+import { Order, IOrder } from '../models/Order';
 import mongoose from 'mongoose';
+
+// Define timestamp properties for documents
+type WithTimestamps = {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// Define an extended interface that includes timestamps
+interface UserWithTimestamps extends IUser {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface OrderWithTimestamps extends IOrder {
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Get list of all customers (for admin use)
+ * Supports pagination, filtering, and sorting
+ */
+export async function getCustomersList(req: Request, res: Response): Promise<void> {
+  try {
+    // Check if user is admin
+    if (!req.user || req.user.role !== 'admin') {
+      res.status(403).json({
+        status: 'error',
+        message: 'Access denied. Admin privileges required.'
+      });
+      return;
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Filtering options
+    const search = req.query.search as string;
+    const role = req.query.role as string || 'user'; // Default to showing only customers
+    const sortBy = req.query.sortBy as string || 'createdAt';
+    const sortOrder = req.query.sortOrder as string === 'asc' ? 1 : -1;
+    
+    // Build query
+    const query: Record<string, any> = {};
+    
+    // Add role filter (default to user)
+    if (role) {
+      query.role = role;
+    }
+    
+    // Add search functionality
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Build sort options
+    const sortOptions: { [key: string]: any } = {};
+    sortOptions[sortBy] = sortOrder;
+    
+    // Execute query with pagination
+    const customers = await User.find(query)
+      .select('_id name email phone createdAt picture')
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+      
+    // Get total count for pagination
+    const totalCount = await User.countDocuments(query);
+
+    // Fetch additional data for each customer
+    const customerData = await Promise.all(
+      customers.map(async (customer) => {
+        // Get order count
+        const orderCount = await Order.countDocuments({ user: customer._id });
+        
+        // Get total spending
+        const orders = await Order.find({ 
+          user: customer._id,
+          status: { $nin: ['cancelled', 'pending'] } // Exclude cancelled and pending orders
+        });
+        const totalSpending = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        
+        // Use type assertion to include createdAt
+        const customerDoc = customer.toJSON() as IUser & WithTimestamps;
+        
+        // Format the customer data
+        return {
+          _id: customerDoc._id,
+          name: customerDoc.name,
+          email: customerDoc.email,
+          joinDate: customerDoc.createdAt,
+          picture: customerDoc.picture,
+          orderCount,
+          totalSpending
+        };
+      })
+    );
+    
+    res.json({
+      status: 'success',
+      message: 'Customers retrieved successfully',
+      data: {
+        customers: customerData,
+        pagination: {
+          totalCount,
+          totalPages: Math.ceil(totalCount / limit),
+          currentPage: page,
+          hasMore: page * limit < totalCount
+        }
+      }
+    });
+  } catch (error: any) {
+    console.error('Error getting customers list:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error getting customers list',
+      error: error.message
+    });
+  }
+}
 
 /**
  * Get user profile
@@ -142,10 +268,10 @@ export async function addUserAddress(req: Request, res: Response): Promise<void>
       return;
     }
 
-    const { name, street, city, state, postalCode, additionalInfo, isDefault } = req.body;
+    const { name, street, city, state, postalCode, additionalInfo, isDefault, phone } = req.body;
 
     // Validate required fields
-    if (!name || !street || !city || !state || !postalCode) {
+    if (!name || !street || !city || !state || !postalCode || !phone) {
       res.status(400).json({
         status: 'error',
         message: 'Missing required address fields'
@@ -155,11 +281,12 @@ export async function addUserAddress(req: Request, res: Response): Promise<void>
 
     const newAddress = {
       _id: new mongoose.Types.ObjectId(),
-      name,
-      street,
-      city,
-      state,
-      postalCode,
+      name: String(name),
+      street: String(street),
+      city: String(city),
+      state: String(state),
+      postalCode: String(postalCode),
+      phone: String(phone),
       additionalInfo: additionalInfo || '',
       isDefault: isDefault || false
     };
@@ -220,7 +347,7 @@ export async function updateUserAddress(req: Request, res: Response): Promise<vo
     }
 
     const { addressId } = req.params;
-    const { name, street, city, state, postalCode, additionalInfo, isDefault } = req.body;
+    const { name, street, city, state, postalCode, additionalInfo, isDefault, phone } = req.body;
 
     if (!addressId) {
       res.status(400).json({
@@ -261,6 +388,7 @@ export async function updateUserAddress(req: Request, res: Response): Promise<vo
     if (state) updatedAddress.state = state;
     if (postalCode) updatedAddress.postalCode = postalCode;
     if (additionalInfo !== undefined) updatedAddress.additionalInfo = additionalInfo;
+    if (phone) updatedAddress.phone = phone;
 
     // Handle default address
     if (isDefault) {
@@ -425,7 +553,107 @@ export async function setDefaultAddress(req: Request, res: Response): Promise<vo
       error: error.message
     });
   }
-} 
+}
+
+/**
+ * Get a single customer by ID (for admin use)
+ */
+export async function getCustomerById(req: Request, res: Response): Promise<void> {
+  try {
+    // Check if user is admin
+    if (!req.user || req.user.role !== 'admin') {
+      res.status(403).json({
+        status: 'error',
+        message: 'Access denied. Admin privileges required.'
+      });
+      return;
+    }
+
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Invalid customer ID format'
+      });
+      return;
+    }
+    
+    // Get basic customer info
+    const customer = await User.findById(id)
+      .select('-password'); // Exclude password field
+      
+    if (!customer) {
+      res.status(404).json({
+        status: 'error',
+        message: 'Customer not found'
+      });
+      return;
+    }
+    
+    // Get order statistics
+    const allOrders = await Order.find({ user: id });
+    const completedOrders = allOrders.filter(order => !['cancelled', 'pending'].includes(order.status));
+    
+    // Calculate statistics
+    const orderCount = allOrders.length;
+    const totalSpending = completedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const averageOrderValue = orderCount > 0 ? totalSpending / completedOrders.length : 0;
+    
+    // Get last 5 orders
+    const recentOrders = await Order.find({ user: id })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('items.menuItem', 'name price image');
+    
+    // Use toJSON to get all properties including timestamps
+    const customerObj = customer.toJSON() as IUser & WithTimestamps;
+    const recentOrdersObj = recentOrders.map(order => order.toJSON() as IOrder & WithTimestamps);
+    
+    // Find first and last order dates
+    let firstOrderDate = null;
+    let lastOrderDate = null;
+    
+    if (allOrders.length > 0) {
+      // Sort orders by date
+      const sortedOrders = [...allOrders].sort((a, b) => {
+        const dateA = (a.toJSON() as IOrder & WithTimestamps).createdAt;
+        const dateB = (b.toJSON() as IOrder & WithTimestamps).createdAt;
+        return new Date(dateA).getTime() - new Date(dateB).getTime();
+      });
+      
+      firstOrderDate = (sortedOrders[0].toJSON() as IOrder & WithTimestamps).createdAt;
+      lastOrderDate = (sortedOrders[sortedOrders.length - 1].toJSON() as IOrder & WithTimestamps).createdAt;
+    }
+    
+    // Format response with all required data
+    const customerData = {
+      ...customerObj,
+      statistics: {
+        orderCount,
+        totalSpending,
+        averageOrderValue,
+        firstOrderDate,
+        lastOrderDate
+      },
+      recentOrders: recentOrdersObj
+    };
+    
+    res.json({
+      status: 'success',
+      message: 'Customer details retrieved successfully',
+      data: customerData
+    });
+  } catch (error: any) {
+    console.error('Error getting customer details:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error getting customer details',
+      error: error.message
+    });
+  }
+}
+
 /**
  * Get full user profile (all info in one response)
  */

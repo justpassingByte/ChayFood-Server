@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
+import { adminMiddleware } from '../middleware/admin-middleware';
 import { 
   getUserProfile,
   updateUserProfile,
@@ -8,10 +9,16 @@ import {
   updateUserAddress,
   deleteUserAddress,
   setDefaultAddress,
+  getCustomersList,
+  getCustomerById,
   getFullUserProfile
 } from '../controllers/user-controller';
 
 const router = express.Router();
+
+// Admin routes
+router.get('/customers', authenticateToken, adminMiddleware, getCustomersList);
+router.get('/customers/:id', authenticateToken, adminMiddleware, getCustomerById);
 
 // Profile routes
 router.get('/profile', authenticateToken, getUserProfile);

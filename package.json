@@ -8,12 +8,16 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
-    "init-recommendations": "ts-node src/utils/initializeRecommendations.ts"
+    "init-recommendations": "ts-node src/utils/initializeRecommendations.ts",
+    "migrate-categories": "ts-node src/migrate-categories.ts",
+    "postinstall": "shx chmod +x node_modules/.bin/tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -22,11 +26,14 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.8.6",
     "node-cron": "^3.0.3",
+    "nodemailer": "^7.0.3",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
@@ -36,7 +43,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-facebook": "^3.0.3",
     "@types/passport-google-oauth20": "^2.0.16",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
+    "shx": "^0.4.0",
+    "ts-node-dev": "^2.0.0"
   }
 }
