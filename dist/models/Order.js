@@ -62,14 +62,21 @@ const orderSchema = new mongoose_1.default.Schema({
     paymentStatus: {
         type: String,
         required: true,
-        enum: ['pending', 'paid', 'failed'],
+        enum: ['pending', 'paid', 'failed', 'refunded'],
         default: 'pending',
     },
     paymentMethod: {
         type: String,
         required: true,
-        enum: ['cod', 'card', 'banking'],
+        enum: ['cod', 'card', 'banking', 'stripe'],
     },
+    paymentIntent: {
+        id: String,
+        clientSecret: String,
+        status: String
+    },
+    stripePaymentId: String,
+    stripeSessionId: String,
     deliveryTime: Date,
     specialInstructions: String,
 }, {

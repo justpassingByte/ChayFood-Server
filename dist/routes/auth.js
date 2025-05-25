@@ -11,6 +11,9 @@ const router = express_1.default.Router();
 // Email/password authentication
 router.post('/register', auth_controller_1.register);
 router.post('/login', auth_controller_1.login);
+// Password reset
+router.post('/forgot-password', auth_controller_1.forgotPassword);
+router.post('/reset-password', auth_controller_1.resetPassword);
 // Google OAuth2 routes
 router.get('/google', passport_1.default.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback', passport_1.default.authenticate('google', { session: false, failureRedirect: '/login?error=google_auth_failed' }), auth_controller_1.handleOAuthCallback);
