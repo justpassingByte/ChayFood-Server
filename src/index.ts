@@ -77,7 +77,7 @@ app.get('/', (req, res) => {
       recommendation: '/recommendation',
       category: '/category',
       cart: '/cart',
-      analytics: '/api/analytics',
+      analytics: 'analytics',
       payment: '/payment',
       user: '/user',
       loyalty: '/loyalty',
@@ -101,7 +101,7 @@ app.use('/loyalty', loyaltyRoutes);
 app.use('/promotion', promotionRoutes);
 app.use('/category', categoryRoutes);
 app.use('/cart', cartRoutes);
-app.use('/api/analytics', analyticsRoutes);
+app.use('/analytics', analyticsRoutes);
 app.use('/review', reviewRoutes);
 app.use('/payment', paymentRoutes);
 

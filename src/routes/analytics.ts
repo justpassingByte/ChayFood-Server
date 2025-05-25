@@ -9,7 +9,8 @@ import {
 } from '../controllers/analytics-controller';
 
 const router = Router();
-
+// Popular dishes endpoint
+router.get('/dishes/popular', getPopularDishes);
 // All analytics routes should be accessible only to admins
 router.use(authenticate, isAdmin);
 
@@ -19,8 +20,7 @@ router.get('/orders/stats', getOrderStats);
 // Customer statistics endpoint
 router.get('/customers/stats', getCustomerStats);
 
-// Popular dishes endpoint
-router.get('/dishes/popular', getPopularDishes);
+
 
 // Order trends endpoint
 router.get('/orders/trends', getOrderTrends);

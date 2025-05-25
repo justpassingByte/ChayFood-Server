@@ -420,11 +420,13 @@ export const getPopularDishes = async (req: Request, res: Response) => {
 
     const result = popularDishes.map(dish => {
       const item = menuItemMapFull.get(dish.id);
+      if (!item) return null;
       return {
-        ...dish,
-        ...item, // merge tất cả field của MenuItem
+        ...item, // toàn bộ thông tin MenuItem
+        count: dish.count,
+        revenue: dish.revenue,
       };
-    });
+    }).filter(Boolean);
 
     return res.json(result);
     
