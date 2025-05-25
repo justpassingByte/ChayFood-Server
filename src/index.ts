@@ -77,7 +77,7 @@ app.get('/', (req, res) => {
       recommendation: '/recommendation',
       category: '/category',
       cart: '/cart',
-      analytics: 'analytics',
+      analytics: '/analytics',
       payment: '/payment',
       user: '/user',
       loyalty: '/loyalty',
