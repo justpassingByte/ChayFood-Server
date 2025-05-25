@@ -37,6 +37,7 @@ router.get('/customers/:id', authenticateToken, adminMiddleware, getCustomerById
 
 // Profile routes
 router.get('/profile', authenticateToken, getUserProfile);
+console.log('Mounting /user/profile/full route');
 router.get('/profile/full', authenticateToken, getFullUserProfile);
 router.put('/profile', authenticateToken, upload.single('picture'), updateUserProfile);
 

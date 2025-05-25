@@ -658,6 +658,7 @@ export async function getCustomerById(req: Request, res: Response): Promise<void
  * Get full user profile (all info in one response)
  */
 export async function getFullUserProfile(req: Request, res: Response): Promise<void> {
+  console.log('getFullUserProfile called');
   try {
     if (!req.user || !req.user._id) {
       res.status(401).json({

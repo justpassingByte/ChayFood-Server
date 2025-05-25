@@ -105,6 +105,8 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/review', reviewRoutes);
 app.use('/payment', paymentRoutes);
 
+console.log('Mounted /user routes');
+
 // 404 handler for undefined routes
 app.use((req, res) => {
   console.log(`Route not found: ${req.method} ${req.path}`);
