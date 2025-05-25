@@ -20,6 +20,7 @@ import categoryRoutes from './routes/category';
 import cartRoutes from './routes/cart';
 import analyticsRoutes from './routes/analytics';
 import reviewRoutes from './routes/review';
+import paymentRoutes from './routes/payment';
 
 dotenv.config();
 
@@ -30,6 +31,11 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 }));
+
+// Special handling for Stripe webhooks (must come before express.json())
+app.use('/payment/webhook', express.raw({ type: 'application/json' }));
+
+// Regular JSON parsing for other routes
 app.use(express.json());
 
 // Session configuration
@@ -68,7 +74,8 @@ app.get('/', (req, res) => {
       recommendation: '/recommendation',
       category: '/category',
       cart: '/cart',
-      analytics: '/api/analytics'
+      analytics: '/api/analytics',
+      payment: '/payment'
     }
   });
 });
@@ -81,12 +88,14 @@ app.use('/subscription', subscriptionRoutes);
 app.use('/plan', planRoutes);
 app.use('/recommendation', recommendationRoutes);
 app.use('/admin', userRoutes);
+app.use('/user', userRoutes);
 app.use('/loyalty', loyaltyRoutes);
 app.use('/promotion', promotionRoutes);
 app.use('/category', categoryRoutes);
 app.use('/cart', cartRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/review', reviewRoutes);
+app.use('/payment', paymentRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
@@ -139,4 +148,5 @@ app.listen(PORT, () => {
   console.log('- Cart: http://localhost:' + PORT + '/cart');
   console.log('- Analytics: http://localhost:' + PORT + '/api/analytics');
   console.log('- Review: http://localhost:' + PORT + '/review');
+  console.log('- Payment: http://localhost:' + PORT + '/payment');
 }); 

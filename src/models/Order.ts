@@ -19,8 +19,15 @@ export interface IOrder extends mongoose.Document {
     postalCode: string;
     additionalInfo?: string;
   };
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  paymentMethod: 'cod' | 'card' | 'banking';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  paymentMethod: 'cod' | 'card' | 'banking' | 'stripe';
+  paymentIntent?: {
+    id: string;
+    clientSecret: string;
+    status: string;
+  };
+  stripePaymentId?: string;
+  stripeSessionId?: string;
   deliveryTime?: Date;
   specialInstructions?: string;
   createdAt: Date;
@@ -84,14 +91,21 @@ const orderSchema = new mongoose.Schema({
   paymentStatus: {
     type: String,
     required: true,
-    enum: ['pending', 'paid', 'failed'],
+    enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending',
   },
   paymentMethod: {
     type: String,
     required: true,
-    enum: ['cod', 'card', 'banking'],
+    enum: ['cod', 'card', 'banking', 'stripe'],
   },
+  paymentIntent: {
+    id: String,
+    clientSecret: String,
+    status: String
+  },
+  stripePaymentId: String,
+  stripeSessionId: String,
   deliveryTime: Date,
   specialInstructions: String,
 }, {

@@ -9,7 +9,8 @@ import {
   updateOrderStatus, 
   cancelOrder,
   confirmDelivery,
-  reorderPreviousOrder
+  reorderPreviousOrder,
+  getOrderBySessionId
 } from '../controllers/order-controller';
 import { trackOrderCreation } from '../middleware/userPreferenceMiddleware';
 
@@ -23,6 +24,9 @@ router.get('/admin/all', authenticateToken, getAllOrders);
 
 // User route - Get only the user's own orders
 router.get('/user/my-orders', authenticateToken, getUserOrders);
+
+// Get order by Stripe session ID
+router.get('/by-session/:sessionId', authenticateToken, getOrderBySessionId);
 
 // Get order by ID
 router.get('/:id', authenticateToken, getOrderById);

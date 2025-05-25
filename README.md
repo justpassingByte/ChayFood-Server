@@ -29,6 +29,7 @@ A robust Node.js backend for the ChayFood vegan food delivery platform built wit
 - 🛒 Shopping Cart System with Item Notes
 - 🏷️ Category Management for Menu Organization
 - 📈 Business Analytics for Revenue and Order Tracking
+- 💳 Stripe Payment Integration
 - 🧪 Sample Data Generation for Development and Testing
 
 ## Analytics API Features
@@ -93,6 +94,9 @@ GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 SESSION_SECRET=your_session_secret
 FRONTEND_URL=http://localhost:3000
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 ```
 
 4. Build the project:
@@ -198,8 +202,8 @@ src/
 ### Analytics
 - `GET /api/analytics/orders/stats` - Get order statistics
   - Query params:
-    - `timeRange` (optional): Time period - 'day', 'week', 'month', 'quarter', 'year', 'custom' (default: 'month')
-    - `region` (optional): Region filter - 'North', 'Central', 'South', 'all' (default: 'all')
+    - `timeRange` (optional): Time period (default: 'month')
+    - `region` (optional): Region filter (default: 'all')
     - `category` (optional): Food category filter (default: 'all')
     - `startDate`, `endDate` (required if timeRange is 'custom'): Date format YYYY-MM-DD
 - `GET /api/analytics/customers/stats` - Get customer statistics
@@ -217,6 +221,12 @@ src/
 - `GET /api/analytics/orders/regional` - Get regional order distribution
   - Query params:
     - `timeRange` (optional): Time period (default: 'month')
+
+### Payment
+- `POST /payment/create-intent/:orderId` - Create a Stripe payment intent for an order
+- `POST /payment/confirm/:orderId` - Confirm a Stripe payment for an order
+- `POST /payment/webhook` - Handle Stripe webhook events
+- `POST /payment/refund/:orderId` - Process a refund for an order (admin only)
 
 ### Sample Data Generation (Admin Only)
 - `POST /api/admin/sample-data/menu-items` - Generate sample menu items
