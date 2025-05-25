@@ -14,6 +14,8 @@ router.get('/', auth_1.authenticateToken, order_controller_1.getOrders);
 router.get('/admin/all', auth_1.authenticateToken, order_controller_1.getAllOrders);
 // User route - Get only the user's own orders
 router.get('/user/my-orders', auth_1.authenticateToken, order_controller_1.getUserOrders);
+// Get order by Stripe session ID
+router.get('/by-session/:sessionId', auth_1.authenticateToken, order_controller_1.getOrderBySessionId);
 // Get order by ID
 router.get('/:id', auth_1.authenticateToken, order_controller_1.getOrderById);
 // Create order - add tracking middleware after order creation

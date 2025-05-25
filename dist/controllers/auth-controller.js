@@ -8,8 +8,20 @@ exports.login = login;
 exports.handleOAuthCallback = handleOAuthCallback;
 exports.checkAuthStatus = checkAuthStatus;
 exports.logout = logout;
+exports.forgotPassword = forgotPassword;
+exports.resetPassword = resetPassword;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = require("../models/User");
+const crypto_1 = __importDefault(require("crypto"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
+// Cấu hình Nodemailer - Điều chỉnh theo cấu hình email server thực tế
+const transporter = nodemailer_1.default.createTransport({
+    service: process.env.EMAIL_SERVICE || 'gmail',
+    auth: {
+        user: process.env.EMAIL_USERNAME || 'nhockuteg2003@gmail.com',
+        pass: process.env.EMAIL_PASSWORD || 'gwjg txqw oxno hipe',
+    },
+});
 /**
  * Register a new user with email and password
  */
@@ -210,5 +222,147 @@ function logout(req, res) {
     else {
         // If we're not using sessions
         res.json({ status: 'success', message: 'Logged out successfully' });
+    }
+}
+/**
+ * Forgot password - send reset password email
+ */
+async function forgotPassword(req, res) {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Email is required',
+            });
+            return;
+        }
+        // Find user by email
+        const user = await User_1.User.findOne({ email });
+        if (!user) {
+            // Không tiết lộ nếu email tồn tại hoặc không vì lý do bảo mật
+            res.status(200).json({
+                status: 'success',
+                message: 'If the email exists, a password reset link has been sent',
+            });
+            return;
+        }
+        // Tạo reset token ngẫu nhiên
+        const resetToken = crypto_1.default.randomBytes(32).toString('hex');
+        // Đặt reset token và thời gian hết hạn (1 giờ)
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 giờ
+        await user.save();
+        // Tạo URL reset password
+        const resetURL = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+        // Gửi email
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL_FROM || 'nhockuteg2003@gmail.com',
+            subject: 'Đặt lại mật khẩu ChayFood',
+            text: `Bạn đang nhận được email này vì bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu cho tài khoản của bạn.\n\n
+        Vui lòng nhấp vào liên kết sau hoặc dán nó vào trình duyệt của bạn để hoàn tất quy trình:\n\n
+        ${resetURL}\n\n
+        Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này và mật khẩu của bạn sẽ không thay đổi.\n`,
+            html: `
+        <h2>Đặt lại mật khẩu ChayFood</h2>
+        <p>Bạn đang nhận được email này vì bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+        <p>Vui lòng nhấp vào liên kết sau để hoàn tất quy trình:</p>
+        <a href="${resetURL}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Đặt lại mật khẩu</a>
+        <p>Hoặc dán URL sau vào trình duyệt của bạn:</p>
+        <p>${resetURL}</p>
+        <p>Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này và mật khẩu của bạn sẽ không thay đổi.</p>
+      `,
+        };
+        // Gửi email (bất đồng bộ, không chờ)
+        transporter.sendMail(mailOptions, (err) => {
+            if (err) {
+                console.error('Send email error:', err);
+            }
+        });
+        // Phản hồi cho client
+        res.status(200).json({
+            status: 'success',
+            message: 'If the email exists, a password reset link has been sent',
+        });
+    }
+    catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to process the request',
+            error: error.message,
+        });
+    }
+}
+/**
+ * Reset password using token
+ */
+async function resetPassword(req, res) {
+    try {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Token and new password are required',
+            });
+            return;
+        }
+        // Validate newPassword length
+        if (newPassword.length < 6) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Password must be at least 6 characters long',
+            });
+            return;
+        }
+        // Find user with valid reset token and not expired
+        const user = await User_1.User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+        if (!user) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Password reset token is invalid or has expired',
+            });
+            return;
+        }
+        // Update password
+        user.password = newPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        // Gửi email xác nhận
+        const mailOptions = {
+            to: user.email,
+            from: process.env.EMAIL_FROM || 'noreply@chayfood.com',
+            subject: 'Mật khẩu của bạn đã được thay đổi',
+            text: `Xin chào,\n\n
+        Đây là xác nhận rằng mật khẩu cho tài khoản ${user.email} của bạn vừa được thay đổi.\n`,
+            html: `
+        <h2>Thay đổi mật khẩu thành công</h2>
+        <p>Xin chào,</p>
+        <p>Đây là xác nhận rằng mật khẩu cho tài khoản ${user.email} của bạn vừa được thay đổi.</p>
+      `,
+        };
+        // Gửi email (bất đồng bộ, không chờ)
+        transporter.sendMail(mailOptions, (err) => {
+            if (err) {
+                console.error('Send confirmation email error:', err);
+            }
+        });
+        res.status(200).json({
+            status: 'success',
+            message: 'Password has been reset successfully',
+        });
+    }
+    catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to reset password',
+            error: error.message,
+        });
     }
 }

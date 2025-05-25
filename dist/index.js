@@ -24,6 +24,7 @@ const category_1 = __importDefault(require("./routes/category"));
 const cart_1 = __importDefault(require("./routes/cart"));
 const analytics_1 = __importDefault(require("./routes/analytics"));
 const review_1 = __importDefault(require("./routes/review"));
+const payment_1 = __importDefault(require("./routes/payment"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Middleware
@@ -31,6 +32,9 @@ app.use((0, cors_1.default)({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
 }));
+// Special handling for Stripe webhooks (must come before express.json())
+app.use('/payment/webhook', express_1.default.raw({ type: 'application/json' }));
+// Regular JSON parsing for other routes
 app.use(express_1.default.json());
 // Session configuration
 app.use((0, express_session_1.default)({
@@ -65,7 +69,8 @@ app.get('/', (req, res) => {
             recommendation: '/recommendation',
             category: '/category',
             cart: '/cart',
-            analytics: '/api/analytics'
+            analytics: '/api/analytics',
+            payment: '/payment'
         }
     });
 });
@@ -77,12 +82,14 @@ app.use('/subscription', subscription_1.default);
 app.use('/plan', plan_1.default);
 app.use('/recommendation', recommendationRoutes_1.default);
 app.use('/admin', user_1.default);
+app.use('/user', user_1.default);
 app.use('/loyalty', loyalty_1.default);
 app.use('/promotion', promotion_1.default);
 app.use('/category', category_1.default);
 app.use('/cart', cart_1.default);
 app.use('/api/analytics', analytics_1.default);
 app.use('/review', review_1.default);
+app.use('/payment', payment_1.default);
 // 404 handler for undefined routes
 app.use((req, res) => {
     console.log(`Route not found: ${req.method} ${req.path}`);
@@ -129,4 +136,5 @@ app.listen(PORT, () => {
     console.log('- Cart: http://localhost:' + PORT + '/cart');
     console.log('- Analytics: http://localhost:' + PORT + '/api/analytics');
     console.log('- Review: http://localhost:' + PORT + '/review');
+    console.log('- Payment: http://localhost:' + PORT + '/payment');
 });

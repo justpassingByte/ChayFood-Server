@@ -24,11 +24,6 @@ const userSchema = new mongoose_1.default.Schema({
         required: true,
         trim: true,
     },
-    phone: {
-        type: String,
-        required: false,
-        trim: true,
-    },
     address: {
         type: String,
         required: false,
@@ -55,6 +50,11 @@ const userSchema = new mongoose_1.default.Schema({
                 trim: true,
             },
             state: {
+                type: String,
+                required: true,
+                trim: true,
+            },
+            phone: {
                 type: String,
                 required: true,
                 trim: true,
@@ -94,6 +94,12 @@ const userSchema = new mongoose_1.default.Schema({
     },
     picture: {
         type: String,
+    },
+    resetPasswordToken: {
+        type: String,
+    },
+    resetPasswordExpires: {
+        type: Date,
     },
 }, {
     timestamps: true,
