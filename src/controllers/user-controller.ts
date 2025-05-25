@@ -426,3 +426,53 @@ export async function setDefaultAddress(req: Request, res: Response): Promise<vo
     });
   }
 } 
+/**
+ * Get full user profile (all info in one response)
+ */
+export async function getFullUserProfile(req: Request, res: Response): Promise<void> {
+  console.log('getFullUserProfile called');
+  try {
+    if (!req.user || !req.user._id) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Authentication required'
+      });
+      return;
+    }
+
+    // Lấy user với đầy đủ các trường cần thiết
+    const user = await User.findById(req.user._id)
+      .select('-password') // loại bỏ password
+      .lean();
+
+    if (!user) {
+      res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+      return;
+    }
+
+    // Có thể lấy thêm các thông tin liên quan ở đây nếu cần
+    // Ví dụ: tổng số đơn hàng, tổng chi tiêu, v.v.
+    // const orders = await Order.find({ user: req.user._id });
+    // const totalOrders = orders.length;
+    // const totalSpent = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+
+    res.json({
+      status: 'success',
+      message: 'Full user profile retrieved successfully',
+      data: user
+      // Có thể bổ sung các trường khác nếu cần
+      // totalOrders,
+      // totalSpent
+    });
+  } catch (error: any) {
+    console.error('Error getting full user profile:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error getting full user profile',
+      error: error.message
+    });
+  }
+} 

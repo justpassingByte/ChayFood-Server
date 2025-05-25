@@ -7,7 +7,8 @@ import {
   addUserAddress,
   updateUserAddress,
   deleteUserAddress,
-  setDefaultAddress
+  setDefaultAddress,
+  getFullUserProfile
 } from '../controllers/user-controller';
 
 const router = express.Router();
@@ -15,6 +16,8 @@ const router = express.Router();
 // Profile routes
 router.get('/profile', authenticateToken, getUserProfile);
 router.put('/profile', authenticateToken, updateUserProfile);
+router.get('/profile/full', authenticateToken, getFullUserProfile);
+console.log('Mounted /user/profile/full');
 
 // Address routes
 router.get('/addresses', authenticateToken, getUserAddresses);
