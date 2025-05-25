@@ -411,7 +411,22 @@ export const getPopularDishes = async (req: Request, res: Response) => {
       revenue: data.revenue
     })).sort((a, b) => b.count - a.count);
     
-    return res.json(popularDishes);
+    // Sau khi có popularDishes (id, count, revenue, ...)
+    const menuItemIds = popularDishes.map(d => d.id);
+    const menuItemsFull = await MenuItem.find({ _id: { $in: menuItemIds } }).lean();
+
+    // Map lại để merge info
+    const menuItemMapFull = new Map(menuItemsFull.map(item => [item._id.toString(), item]));
+
+    const result = popularDishes.map(dish => {
+      const item = menuItemMapFull.get(dish.id);
+      return {
+        ...dish,
+        ...item, // merge tất cả field của MenuItem
+      };
+    });
+
+    return res.json(result);
     
   } catch (error) {
     console.error('Error getting popular dishes:', error);
