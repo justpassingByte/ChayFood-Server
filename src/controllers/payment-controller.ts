@@ -551,8 +551,8 @@ export async function createStripeCheckoutSession(req: Request, res: Response): 
         quantity: item.quantity,
       })),
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/order/success?orderId=${order._id}`,
-      cancel_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/order/${order._id}`,
+      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/success?orderId=${order._id}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/${order._id}`,
       metadata: {
         orderId: order._id.toString(),
         userId: order.user.toString(),
@@ -629,8 +629,8 @@ export async function createStripeCheckoutSessionWithCart(req: Request, res: Res
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/cart`,
+      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/cart`,
       metadata: {
         items: JSON.stringify(items),
         deliveryAddress: JSON.stringify(deliveryAddress),
