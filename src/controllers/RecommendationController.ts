@@ -8,7 +8,7 @@ import { MenuItemTag } from '../models/MenuItemTag';
 // Định nghĩa interface cho kiểu dữ liệu của recommendations
 interface IMenuItemDocument extends mongoose.Document {
   _id: mongoose.Types.ObjectId;
-  name: string;
+  name: { en: string; vi: string; };
   price: number;
   category: string;
   ingredients: string[];
