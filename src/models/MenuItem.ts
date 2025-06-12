@@ -2,10 +2,16 @@ import mongoose from 'mongoose';
 import { ICategory } from './Category';
 
 export interface IMenuItem extends mongoose.Document {
-  name: string;
-  description: string;
+  name: {
+    en: string;
+    vi: string;
+  };
+  description: {
+    en: string;
+    vi: string;
+  };
   price: number;
-  category: ICategory['_id'];
+  category: string;
   image: string;
   nutritionInfo: {
     calories: number;  // Total calories per serving
@@ -21,13 +27,12 @@ export interface IMenuItem extends mongoose.Document {
 
 const menuItemSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
-    trim: true,
+    en: { type: String, required: true, trim: true },
+    vi: { type: String, required: true, trim: true },
   },
   description: {
-    type: String,
-    required: true,
+    en: { type: String, required: true },
+    vi: { type: String, required: true },
   },
   price: {
     type: Number,
@@ -35,8 +40,7 @@ const menuItemSchema = new mongoose.Schema({
     min: 0,
   },
   category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
+    type: String,
     required: true,
   },
   image: {

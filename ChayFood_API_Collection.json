@@ -18,6 +18,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -36,6 +41,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -61,6 +71,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -98,6 +113,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -131,6 +151,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -159,6 +184,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -193,6 +223,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -217,6 +252,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -251,6 +291,11 @@
                     "key": "Content-Type",
                     "value": "application/json",
                     "type": "text"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi",
+                    "type": "text"
                   }
                 ],
                 "body": {
@@ -278,6 +323,11 @@
                   {
                     "key": "Content-Type",
                     "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi",
                     "type": "text"
                   }
                 ],
@@ -307,6 +357,11 @@
                     "key": "Content-Type",
                     "value": "application/json",
                     "type": "text"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi",
+                    "type": "text"
                   }
                 ],
                 "body": {
@@ -335,6 +390,11 @@
                     "key": "Content-Type",
                     "value": "application/json",
                     "type": "text"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi",
+                    "type": "text"
                   }
                 ],
                 "body": {
@@ -357,6 +417,11 @@
                   {
                     "key": "Authorization",
                     "value": "Bearer {{admin_token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi",
                     "type": "text"
                   }
                 ],
@@ -387,7 +452,13 @@
           "name": "Get All Menu Items",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/menu",
               "host": ["{{base_url}}"],
@@ -400,7 +471,13 @@
           "name": "Get Menu By Category",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/menu?category=main",
               "host": ["{{base_url}}"],
@@ -419,7 +496,13 @@
           "name": "Get Menu By Nutrition",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/menu/nutrition?minProtein=10&maxCalories=500",
               "host": ["{{base_url}}"],
@@ -442,7 +525,13 @@
           "name": "Search Menu Items",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/menu/search?query=tofu&sort=price&order=asc",
               "host": ["{{base_url}}"],
@@ -469,7 +558,13 @@
           "name": "Get Menu Item By ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/menu/{{menu_item_id}}",
               "host": ["{{base_url}}"],
@@ -492,11 +587,16 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Vegan Pad Thai\",\n  \"description\": \"Classic Thai noodles with tofu and vegetables\",\n  \"price\": 12.99,\n  \"category\": \"main\",\n  \"image\": \"https://placekitten.com/500/300\",\n  \"nutritionInfo\": {\n    \"calories\": 450,\n    \"protein\": 15,\n    \"carbs\": 65,\n    \"fat\": 12\n  },\n  \"preparationTime\": 15,\n  \"ingredients\": [\"rice noodles\", \"tofu\", \"bean sprouts\", \"peanuts\", \"lime\"],\n  \"allergens\": [\"peanuts\", \"soy\"]\n}"
+              "raw": "{\n  \"name\": { \"en\": \"Vegan Pad Thai\", \"vi\": \"Pad Thái chay\" },\n  \"description\": { \"en\": \"Classic Thai noodles with tofu and vegetables\", \"vi\": \"Mì Thái truyền thống với đậu phụ và rau củ\" },\n  \"price\": 12.99,\n  \"category\": \"main\",\n  \"image\": \"https://placekitten.com/500/300\",\n  \"nutritionInfo\": {\n    \"calories\": 450,\n    \"protein\": 15,\n    \"carbs\": 65,\n    \"fat\": 12\n  },\n  \"preparationTime\": 15,\n  \"ingredients\": [\"rice noodles\", \"tofu\", \"bean sprouts\", \"peanuts\", \"lime\"],\n  \"allergens\": [\"peanuts\", \"soy\"]\n}"
             },
             "url": {
               "raw": "{{base_url}}/menu",
@@ -516,7 +616,13 @@
           "name": "Get Reviews By Menu Item",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/review/menuitem/{{menu_item_id}}",
               "host": ["{{base_url}}"],
@@ -533,6 +639,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -557,6 +668,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -586,6 +702,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "body": {
@@ -608,6 +729,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -634,6 +760,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -654,7 +785,13 @@
           "name": "Get Birthday Occasion Items",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/recommendation/special-occasion?occasion=birthday&limit=5",
               "host": ["{{base_url}}"],
@@ -677,7 +814,13 @@
           "name": "Get Party Occasion Items",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/recommendation/special-occasion?occasion=party&limit=5",
               "host": ["{{base_url}}"],
@@ -700,7 +843,13 @@
           "name": "Get Diet Occasion Items",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/recommendation/special-occasion?occasion=diet&limit=5",
               "host": ["{{base_url}}"],
@@ -723,7 +872,13 @@
           "name": "Get Healthy Occasion Items",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/recommendation/special-occasion?occasion=healthy&limit=5",
               "host": ["{{base_url}}"],
@@ -746,7 +901,13 @@
           "name": "Get Smart Combos",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/recommendation/combos?size=3",
               "host": ["{{base_url}}"],
@@ -765,7 +926,13 @@
           "name": "Get Smart Combos Based on Item",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/recommendation/combos?baseItem={{menu_item_id}}&size=3",
               "host": ["{{base_url}}"],
@@ -804,6 +971,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "body": {
@@ -827,6 +999,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -845,6 +1022,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -865,6 +1047,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -883,6 +1070,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -909,6 +1101,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -933,6 +1130,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "body": {
@@ -955,6 +1157,11 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
                 "type": "text"
               }
             ],
@@ -997,6 +1204,11 @@
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}",
                 "type": "text"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
               }
             ],
             "url": {
@@ -1017,7 +1229,13 @@
           "name": "Health Check",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "vi",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/",
               "host": ["{{base_url}}"],

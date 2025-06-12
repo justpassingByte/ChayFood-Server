@@ -2,6 +2,26 @@ import { Request, Response } from 'express';
 import { MenuItem } from '../models/MenuItem';
 import { Category } from '../models/Category';
 
+// Extend Express Request type to include 'lang'
+declare global {
+  namespace Express {
+    interface Request {
+      lang?: string;
+    }
+  }
+}
+
+// Helper function and language constants
+const supportedLanguages = ['en', 'vi'];
+const fallbackLanguage = 'en';
+const getLocalizedField = (field: { en: string; vi: string; } | undefined, lang: string | undefined, fallbackLang: string = 'en'): string => {
+  if (!field) return '';
+  if (lang && supportedLanguages.includes(lang) && field[lang as keyof typeof field]) {
+    return field[lang as keyof typeof field];
+  }
+  return field[fallbackLang as keyof typeof field] || '';
+};
+
 /**
  * Get all menu items, with optional category filter
  */

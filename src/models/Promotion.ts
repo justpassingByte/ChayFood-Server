@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 
 export interface IPromotion extends mongoose.Document {
-  name: string;
-  description: string;
+  name: {
+    en: string;
+    vi: string;
+  };
+  description: {
+    en: string;
+    vi: string;
+  };
   code: string;
   type: 'percentage' | 'fixed' | 'free_item' | 'free_delivery';
   value: number;
@@ -31,14 +37,12 @@ export interface IPromotion extends mongoose.Document {
 
 const promotionSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
-    trim: true,
+    en: { type: String, required: true, trim: true },
+    vi: { type: String, required: true, trim: true },
   },
   description: {
-    type: String,
-    required: true,
-    trim: true,
+    en: { type: String, required: true, trim: true },
+    vi: { type: String, required: true, trim: true },
   },
   code: {
     type: String,
