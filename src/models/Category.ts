@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 
 export interface ICategory extends mongoose.Document {
-  name: string;
-  description: string;
+  name: {
+    en: string;
+    vi: string;
+  };
+  description: {
+    en: string;
+    vi: string;
+  };
   slug: string;
   image?: string;
   isActive: boolean;
@@ -11,14 +17,12 @@ export interface ICategory extends mongoose.Document {
 
 const categorySchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
-    trim: true,
-    unique: true,
+    en: { type: String, required: true, trim: true, unique: true },
+    vi: { type: String, required: true, trim: true, unique: true },
   },
   description: {
-    type: String,
-    required: true,
+    en: { type: String, required: true },
+    vi: { type: String, required: true },
   },
   slug: {
     type: String,

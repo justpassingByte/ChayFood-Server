@@ -562,8 +562,8 @@ When creating a new order, follow these steps:
 1. **Create Menu Item** (POST `/menu`):
 ```json
 {
-  "name": "Vegan Pad Thai",
-  "description": "Classic Thai noodles with tofu and vegetables",
+  "name": { "en": "Vegan Pad Thai", "vi": "Pad Thái chay" },
+  "description": { "en": "Classic Thai noodles with tofu and vegetables", "vi": "Mì Thái truyền thống với đậu phụ và rau củ" },
   "price": 12.99,
   "category": "main",
   "image": "https://placekitten.com/500/300",
@@ -582,6 +582,7 @@ When creating a new order, follow these steps:
 2. **Create Dessert Item** (POST `/menu`):
 ```json
 {
+  "name": { "en": "Coconut Chia Pudding", "vi": "Chia Pudding Dừa" },
   "name": "Coconut Chia Pudding",
   "description": "Creamy coconut pudding with chia seeds and fresh berries",
   "price": 6.99,
@@ -1036,6 +1037,38 @@ ChayFood includes a robust notification system that automatically sends alerts t
   expiresAt?: Date;
 }
 ```
-#   C h a y F o o d - S e r v e r 
- 
- 
+
+## Áp dụng đa ngôn ngữ cho Backend
+
+### 1. Thêm middleware nhận diện ngôn ngữ
+Trong file khởi tạo app (ví dụ: `src/index.ts` hoặc `src/app.ts`):
+```ts
+import { detectLanguage } from './middleware/languageMiddleware';
+app.use(detectLanguage);
+```
+
+### 2. Gửi header Accept-Language từ client
+Khi gọi API, client gửi header:
+```
+Accept-Language: vi
+```
+hoặc
+```
+Accept-Language: en
+```
+Backend sẽ tự động trả về đúng ngôn ngữ cho các trường text.
+
+### 3. Khi tạo/cập nhật dữ liệu
+Luôn gửi đủ cả `en` và `vi` cho các trường text dạng object:
+```json
+{
+  "name": { "en": "Vegan Pad Thai", "vi": "Pad Thái chay" },
+  "description": { "en": "Classic Thai noodles", "vi": "Mì Thái truyền thống" }
+}
+```
+
+### Ví dụ request với header Accept-Language
+```http
+GET /category
+Accept-Language: vi
+```

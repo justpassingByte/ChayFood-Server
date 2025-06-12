@@ -1,14 +1,23 @@
 import mongoose from 'mongoose';
 
 export interface IPlan extends mongoose.Document {
-  name: string;
+  name: {
+    en: string;
+    vi: string;
+  };
   code: string;
   price: number;
   duration: number; // in days
-  description: string;
+  description: {
+    en: string;
+    vi: string;
+  };
   mealsPerDay: number;
   snacksPerDay: number;
-  features: string[];
+  features: {
+    en: string;
+    vi: string;
+  }[];
   isRecommended: boolean;
   isPremiumMenu: boolean;
   hasDietitianSupport: boolean;
@@ -20,9 +29,8 @@ export interface IPlan extends mongoose.Document {
 
 const planSchema = new mongoose.Schema({
   name: {
-    type: String,
-    required: true,
-    trim: true
+    en: { type: String, required: true, trim: true },
+    vi: { type: String, required: true, trim: true },
   },
   code: {
     type: String,
@@ -42,8 +50,8 @@ const planSchema = new mongoose.Schema({
     min: 1
   },
   description: {
-    type: String,
-    required: true
+    en: { type: String, required: true },
+    vi: { type: String, required: true },
   },
   mealsPerDay: {
     type: Number,
@@ -57,8 +65,8 @@ const planSchema = new mongoose.Schema({
     min: 0
   },
   features: [{
-    type: String,
-    required: true
+    en: { type: String, required: true },
+    vi: { type: String, required: true },
   }],
   isRecommended: {
     type: Boolean,

@@ -5,6 +5,7 @@ import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
 import configurePassport from './config/passport';
+import { detectLanguage } from './middleware/languageMiddleware';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -37,6 +38,9 @@ app.use('/payment/webhook', express.raw({ type: 'application/json' }));
 
 // Regular JSON parsing for other routes
 app.use(express.json());
+
+// Thêm middleware nhận biết ngôn ngữ
+app.use(detectLanguage);
 
 // Session configuration
 app.use(session({

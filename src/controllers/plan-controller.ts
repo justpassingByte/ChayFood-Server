@@ -1,6 +1,26 @@
 import { Request, Response } from 'express';
 import { Plan } from '../models/Plan';
 
+// Extend Express Request type to include 'lang'
+declare global {
+  namespace Express {
+    interface Request {
+      lang?: string;
+    }
+  }
+}
+
+// Helper function and language constants
+const supportedLanguages = ['en', 'vi'];
+const fallbackLanguage = 'en';
+const getLocalizedField = (field: { en: string; vi: string; } | undefined, lang: string | undefined, fallbackLang: string = 'en'): string => {
+  if (!field) return '';
+  if (lang && supportedLanguages.includes(lang) && field[lang as keyof typeof field]) {
+    return field[lang as keyof typeof field];
+  }
+  return field[fallbackLang as keyof typeof field] || '';
+};
+
 /**
  * Get all available subscription plans
  */
