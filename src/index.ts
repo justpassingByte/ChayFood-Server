@@ -15,6 +15,7 @@ import subscriptionRoutes from './routes/subscription';
 import planRoutes from './routes/plan';
 import recommendationRoutes from './routes/recommendationRoutes';
 import userRoutes from './routes/user';
+import adminRoutes from './routes/admin';
 import loyaltyRoutes from './routes/loyalty';
 import promotionRoutes from './routes/promotion';
 import categoryRoutes from './routes/category';
@@ -22,6 +23,7 @@ import cartRoutes from './routes/cart';
 import analyticsRoutes from './routes/analytics';
 import reviewRoutes from './routes/review';
 import paymentRoutes from './routes/payment';
+import chatRoutes from './routes/chat';
 
 dotenv.config();
 
@@ -32,9 +34,6 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 }));
-
-// Special handling for Stripe webhooks (must come before express.json())
-app.use('/payment/webhook', express.raw({ type: 'application/json' }));
 
 // Regular JSON parsing for other routes
 app.use(express.json());
@@ -88,6 +87,7 @@ app.get('/', (req, res) => {
       promotion: '/promotion',
       review: '/review',
       admin: '/admin',
+      chat: '/chat',
     }
   });
 });
@@ -99,7 +99,7 @@ app.use('/order', orderRoutes);
 app.use('/subscription', subscriptionRoutes);
 app.use('/plan', planRoutes);
 app.use('/recommendation', recommendationRoutes);
-app.use('/admin', userRoutes);
+app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
 app.use('/loyalty', loyaltyRoutes);
 app.use('/promotion', promotionRoutes);
@@ -108,6 +108,7 @@ app.use('/cart', cartRoutes);
 app.use('/analytics', analyticsRoutes);
 app.use('/review', reviewRoutes);
 app.use('/payment', paymentRoutes);
+app.use('/chat', chatRoutes);
 
 console.log('Mounted /user routes');
 
@@ -163,4 +164,6 @@ app.listen(PORT, () => {
   console.log('- Analytics: http://localhost:' + PORT + '/api/analytics');
   console.log('- Review: http://localhost:' + PORT + '/review');
   console.log('- Payment: http://localhost:' + PORT + '/payment');
+  console.log('- Chat: http://localhost:' + PORT + '/chat');
+  
 }); 

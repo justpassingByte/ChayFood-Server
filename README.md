@@ -2,35 +2,45 @@
 
 A robust Node.js backend for the ChayFood vegan food delivery platform built with Express, TypeScript, MongoDB, and OAuth2 authentication.
 
+## Technology Stack
+
+- **Core Framework**: Node.js, Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Language**: TypeScript
+- **Authentication**: JWT (JSON Web Tokens), Passport.js for OAuth 2.0 (Google)
+- **Payments**: Stripe for secure payment processing
+- **AI / Machine Learning**: Hugging Face Inference for AI Chatbot
+- **Real-time**: Node-cron for scheduled tasks
+- **Development Tools**: `ts-node-dev` for hot-reloading, ESLint for code quality
+
 ## Features
 
-- 🔐 OAuth2 Authentication with Google
-- 👤 User Management
-- 🍽️ Menu Management
-- 📦 Order Processing
-- 🔒 Role-based Access Control
-- 📝 TypeScript Support
-- 🗄️ MongoDB Integration
-- 🏗️ MVC Architecture Pattern
-- 🥗 Nutritional Information Tracking (Calories & Protein)
-- 🔍 Advanced Search Engine for Menu Items
-- 🗓️ Subscription-based Meal Plans
-- 📊 Flexible Plan Management
-- 🧠 AI-Powered Menu Recommendations
-- 🎉 Special Occasion Menu Filtering
-- 🍱 Smart Combo Suggestions
-- 💰 Loyalty Points System
-- 📋 Order History with Quick Reorder
-- 📍 Multiple Delivery Addresses
-- 👨‍💼 Enhanced User Profiles
-- 🎮 Interactive Mini-Games (Spin Wheel, Scratch Card, Memory Match, Quiz)
-- 🎁 Reward System with Probability-based Prizes
-- 👥 Referral System with Tracking and Bonuses
-- 🛒 Shopping Cart System with Item Notes
-- 🏷️ Category Management for Menu Organization
-- 📈 Business Analytics for Revenue and Order Tracking
-- 💳 Stripe Payment Integration
-- 🧪 Sample Data Generation for Development and Testing
+The project's features are divided into core functionalities and advanced capabilities.
+
+### 🛡️ Core Features
+
+These are the fundamental features that form the backbone of the application.
+
+- **User Authentication**: Secure user management with JWT-based sessions and Google OAuth 2.0 integration. Includes password hashing (bcrypt) and protected routes.
+- **Menu Management (CRUD)**: Full administrative control to create, read, update, and delete menu items, including bilingual (EN/VI) fields.
+- **Category Management (CRUD)**: Organize menu items into categories, which can also be managed by administrators.
+- **Shopping Cart System**: Persistent, server-side cart for authenticated users. Supports adding, updating, and removing items, along with special notes.
+- **Order Processing**: Users can place orders, which are then tracked with statuses (`pending`, `confirmed`, `preparing`, etc.). Admins can manage and update order statuses.
+- **Role-Based Access Control (RBAC)**: Middleware distinguishes between regular users and administrators, protecting sensitive admin-only endpoints.
+- **Review & Rating System**: Users can submit, update, and view ratings and comments for menu items.
+
+### ✨ Advanced Features
+
+These features provide enhanced functionality and a more dynamic user experience.
+
+- **AI-Powered Chatbot**: An integrated chatbot powered by a Hugging Face model to provide intelligent answers to user queries about the menu.
+- **Promotions & Flash Sales**: A complete system for creating and managing various types of promotions, including percentage-based, fixed-amount discounts, and time-sensitive flash sales.
+- **Business Analytics**: A suite of API endpoints for business intelligence, providing statistics on orders, customers, and popular dishes with flexible filtering.
+- **Stripe Payment Integration**: Securely process payments via Stripe, including creating payment intents and handling webhooks.
+- **Loyalty Points System**: A system to reward customers with points for their purchases, which can be redeemed for discounts.
+- **AI-Powered Recommendations**: Endpoints for providing personalized menu recommendations and smart combo suggestions.
+- **Subscription Meal Plans**: Functionality for creating and managing subscription-based meal plans for users.
+- **Developer Utilities**: Includes scripts for generating realistic sample data (menu items, users, orders) to facilitate testing and development.
 
 ## Analytics API Features
 
@@ -180,6 +190,22 @@ src/
   - Query params:
     - `baseItem` (optional): Menu item ID to base combo recommendations on
     - `size` (optional): Combo size (number of items, default: 3)
+
+### Promotions & Flash Sales
+- `GET /promotion/active-flash-sales` - Get all currently active flash sales (Public)
+- `GET /promotion` - Get all promotions (User authenticated)
+- `GET /promotion/:id` - Get a specific promotion by ID (User authenticated)
+- `POST /promotion` - Create a new promotion (Admin only)
+- `POST /promotion/flash-sale` - Create a new flash sale event (Admin only)
+- `PUT /promotion/:id` - Update a promotion (Admin only)
+- `DELETE /promotion/:id` - Delete a promotion (Admin only)
+- `GET /promotion/:id/stats` - Get usage statistics for a promotion (Admin only)
+
+### AI Chatbot
+- `POST /chat` - Send a message to the AI chatbot and get a response
+- `GET /chat` - Get chat history
+- `GET /chat/:chatId` - Get a specific chat by ID
+- `DELETE /chat/:chatId` - Delete a chat
 
 ### Category
 - `GET /category` - Get all categories
@@ -861,6 +887,44 @@ The cart system has been enhanced with:
     used: boolean;
     usedAt?: Date;
   };
+}
+```
+
+### Promotion
+```typescript
+{
+  code: string; // e.g., "SALE20"
+  description: { en: string; vi: string };
+  discountType: 'percentage' | 'fixed_amount';
+  discountValue: number;
+  startDate: Date;
+  endDate: Date;
+  isActive: boolean;
+  usageLimit: number; // Max number of times a promotion can be used in total
+  usageCount: number; // How many times it has been used
+  minPurchaseAmount: number;
+  appliesTo: 'all' | 'specific_items' | 'specific_categories';
+  specificItemIds?: ObjectId[];
+  specificCategoryIds?: ObjectId[];
+}
+```
+
+### FlashSale
+```typescript
+{
+  title: { en: string; vi: string };
+  description: { en: string; vi: string };
+  items: [{
+    menuItem: ObjectId;
+    discountType: 'percentage' | 'fixed_amount';
+    discountValue: number;
+    quantityLimit: number; // Max quantity per order
+    totalLimit: number; // Total items available for the sale
+    soldCount: number;
+  }];
+  startDate: Date;
+  endDate: Date;
+  isActive: boolean;
 }
 ```
 

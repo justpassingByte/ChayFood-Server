@@ -32,12 +32,6 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     const jwtSecret = process.env.JWT_SECRET || 'default_jwt_secret';
     const decoded = jwt.verify(token, jwtSecret) as JwtUserPayload;
     
-    console.log('Token verification successful, decoded payload:', {
-      _id: decoded._id,
-      email: decoded.email,
-      role: decoded.role
-    });
-    
     // Assign the decoded payload to req.user
     req.user = decoded as any;
     next();
@@ -57,7 +51,10 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
       errorDetails = 'Token cannot be used before its activation time';
     }
 
-    console.log('Token verification failed:', error.message);
+    console.error('Token verification failed:', { 
+      name: error.name, 
+      message: error.message 
+    });
     
     return res.status(403).json({ 
       status: 'error',

@@ -274,14 +274,28 @@ export async function forgotPassword(req: Request, res: Response): Promise<void>
 
     // Tạo reset token ngẫu nhiên
     const resetToken = crypto.randomBytes(32).toString('hex');
+    console.log('Generated Raw Reset Token:', resetToken);
+
+    // Hash the token before saving it to the database
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    console.log('Saved Hashed Token:', hashedToken);
 
     // Đặt reset token và thời gian hết hạn (1 giờ)
-    user.resetPasswordToken = resetToken;
+    user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 giờ
     await user.save();
 
-    // Tạo URL reset password
-    const resetURL = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+    // Tạo URL reset password (sử dụng token gốc, không hash)
+    // Thay đổi từ query parameter sang path parameter
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // Detect the user's language preference if possible, default to 'vi'
+    const userLang = 'vi'; // Default to Vietnamese
+    
+    // Create a URL with the token as part of the path
+    const resetURL = `${frontendUrl}/${userLang}/reset-password/${resetToken}`;
 
     // Gửi email
     const mailOptions = {
@@ -332,6 +346,8 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
   try {
     const { token, newPassword } = req.body;
 
+    console.log('Received Raw Token for Reset:', token);
+
     if (!token || !newPassword) {
       res.status(400).json({
         status: 'error',
@@ -349,19 +365,32 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
       return;
     }
 
+    // Hash the incoming token to match the one in the database
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+    console.log('Hashed Token for Lookup:', hashedToken);
+
     // Find user with valid reset token and not expired
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
     });
 
     if (!user) {
+      console.log('No user found with this token or token expired');
+      console.log('Token received:', token);
+      console.log('Hashed token for lookup:', hashedToken);
+      
       res.status(400).json({
         status: 'error',
         message: 'Password reset token is invalid or has expired',
       });
       return;
     }
+
+    console.log('User found with token:', user.email);
 
     // Update password
     user.password = newPassword;

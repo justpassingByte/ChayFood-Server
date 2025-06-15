@@ -704,3 +704,53 @@ export async function getFullUserProfile(req: Request, res: Response): Promise<v
     });
   }
 } 
+
+/**
+ * Get user by ID (admin only)
+ */
+export async function getUserById(req: Request, res: Response): Promise<void> {
+  try {
+    // Check if user is admin
+    if (!req.user || req.user.role !== 'admin') {
+      res.status(403).json({
+        status: 'error',
+        message: 'Access denied. Admin privileges required.'
+      });
+      return;
+    }
+
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Invalid user ID format'
+      });
+      return;
+    }
+
+    const user = await User.findById(id)
+        .select('-password');
+
+    if (!user) {
+      res.status(404).json({
+        status: 'error',
+        message: 'User not found'
+      });
+      return;
+    }
+
+      res.json({
+      status: 'success',
+      message: 'User retrieved successfully',
+      data: user
+    });
+  } catch (error: any) {
+    console.error('Error getting user by ID:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Error getting user by ID',
+      error: error.message
+    });
+  }
+}
