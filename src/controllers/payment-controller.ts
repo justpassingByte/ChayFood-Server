@@ -180,8 +180,8 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
       return;
     }
     
-    // Get the raw body for signature verification
-    const rawBody = req.body;
+    // Important: req.body is already raw because of the express.raw middleware
+    // Do not use the parsed body for signature verification
     const signature = req.headers['stripe-signature'];
     
     console.log('Webhook signature received:', signature ? 'Yes' : 'No');
@@ -196,9 +196,27 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
       return;
     }
     
+    // Check for string representation of signature
+    if (typeof signature !== 'string') {
+      console.error('Stripe signature is not a string');
+      res.status(400).json({
+        status: 'error',
+        message: 'Invalid signature format',
+        error: 'Stripe-signature is not a string'
+      });
+      return;
+    }
+    
+    let event;
     try {
-      // Verify the webhook signature
-      const event = stripeService.constructEventFromPayload(req, stripeWebhookSecret);
+      // Proper way to verify the webhook signature
+      console.log('Verifying webhook signature');
+      const stripe = require('../config/stripe').default;
+      event = stripe.webhooks.constructEvent(
+        req.body, 
+        signature, 
+        stripeWebhookSecret
+      );
       console.log('Webhook event verified, type:', event.type);
       
       // Handle specific event types
@@ -213,6 +231,7 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
           break;
         case 'checkout.session.completed':
           console.log('Processing checkout.session.completed event');
+          console.log('Session data:', JSON.stringify(event.data.object));
           await handleCheckoutSessionCompleted(event.data.object);
           break;
         // Add more event handlers as needed
@@ -220,9 +239,13 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
           console.log(`Unhandled event type: ${event.type}`);
       }
       
-      res.json({ received: true });
+      // Send a 200 response to acknowledge receipt of the event
+      res.status(200).json({ received: true });
     } catch (verificationError: any) {
       console.error('Webhook signature verification failed:', verificationError);
+      console.error('Signature received:', signature);
+      // Print first 100 chars of body for debugging
+      console.error('Body preview:', typeof req.body === 'string' ? req.body.substring(0, 100) : 'Body not available as string');
       res.status(400).json({
         status: 'error',
         message: 'Webhook signature verification failed',
@@ -312,7 +335,6 @@ async function handleCheckoutSessionCompleted(session: any): Promise<void> {
   try {
     console.log('Processing checkout.session.completed webhook for session:', session.id);
     console.log('Session payment status:', session.payment_status);
-    console.log('Session metadata:', session.metadata);
     
     // Check if this is for an existing order
     const orderId = session.metadata?.orderId;
@@ -336,6 +358,13 @@ async function handleCheckoutSessionCompleted(session: any): Promise<void> {
       console.log('No orderId in metadata, will create new order');
     }
     
+    // Kiểm tra xem đã có đơn hàng với session ID này chưa
+    const existingOrderWithSession = await Order.findOne({ stripeSessionId: session.id });
+    if (existingOrderWithSession) {
+      console.log(`Order already exists for session ${session.id}, ID: ${existingOrderWithSession._id}`);
+      return;
+    }
+    
     // If no existing order, create a new one from the metadata
     if (!session.metadata?.items) {
       console.error('No items found in session metadata');
@@ -345,21 +374,41 @@ async function handleCheckoutSessionCompleted(session: any): Promise<void> {
     try {
       // Parse metadata
       console.log('Parsing session metadata to create order');
-      const items = JSON.parse(session.metadata.items);
-      console.log('Items:', items.length);
+      let items;
+      try {
+        items = JSON.parse(session.metadata.items);
+        console.log('Items parsed successfully:', items.length);
+      } catch (parseError) {
+        console.error('Error parsing items:', parseError);
+        console.log('Raw items string:', session.metadata.items);
+        return;
+      }
+
+      let deliveryAddress;
+      try {
+        deliveryAddress = JSON.parse(session.metadata.deliveryAddress);
+        console.log('Delivery address parsed successfully');
+      } catch (parseError) {
+        console.error('Error parsing delivery address:', parseError);
+        console.log('Raw address string:', session.metadata.deliveryAddress);
+        return;
+      }
       
-      const deliveryAddress = JSON.parse(session.metadata.deliveryAddress);
-      console.log('Delivery address:', deliveryAddress);
-      
-      const paymentMethod = session.metadata.paymentMethod;
-      const specialInstructions = session.metadata.specialInstructions;
-      let userId;
+      const paymentMethod = session.metadata.paymentMethod || 'stripe';
+      const specialInstructions = session.metadata.specialInstructions || '';
+      let userId = null;
       
       if (session.metadata.user) {
+        try {
         const userData = JSON.parse(session.metadata.user);
         userId = userData._id;
         console.log('Found user ID in metadata:', userId);
-      } else if (session.customer_details?.email) {
+        } catch (parseError) {
+          console.error('Error parsing user data:', parseError);
+        }
+      }
+      
+      if (!userId && session.customer_details?.email) {
         // Try to find user by email if no user ID in metadata
         console.log('Looking up user by email:', session.customer_details.email);
         const User = require('../models/User').User;
@@ -377,17 +426,23 @@ async function handleCheckoutSessionCompleted(session: any): Promise<void> {
         return;
       }
       
+      const totalAmount = parseFloat(session.metadata.totalAmount || session.amount_total / 100);
+      
       // Create new order
       console.log('Creating new order for user:', userId);
-      const newOrder = new Order({
-        user: userId,
-        items: items.map((item: any) => ({
+      
+      // Chỉ bao gồm các trường hợp lệ theo schema
+      const orderItems = items.map((item: any) => ({
           menuItem: item.menuItem,
           quantity: item.quantity,
           price: item.price,
           specialInstructions: item.specialInstructions || ''
-        })),
-        totalAmount: parseFloat(session.metadata.totalAmount),
+      }));
+      
+      const newOrder = new Order({
+        user: userId,
+        items: orderItems,
+        totalAmount: totalAmount,
         deliveryAddress,
         paymentMethod,
         specialInstructions,
@@ -399,8 +454,15 @@ async function handleCheckoutSessionCompleted(session: any): Promise<void> {
       
       const savedOrder = await newOrder.save();
       console.log(`Created new order from checkout session ${session.id}, order ID: ${savedOrder._id}`);
+      
+      // Ghi log chi tiết các sản phẩm đã tạo
+      console.log('Order items created:');
+      savedOrder.items.forEach((item: any, index: number) => {
+        console.log(`Item ${index+1}: ${item.quantity}x ${item.menuItem} - ${item.price} VND`);
+      });
+      
     } catch (parseError) {
-      console.error('Error parsing session metadata:', parseError);
+      console.error('Error processing session metadata:', parseError);
       console.error('Raw metadata items:', session.metadata.items);
       console.error('Raw metadata deliveryAddress:', session.metadata.deliveryAddress);
     }
@@ -551,8 +613,8 @@ export async function createStripeCheckoutSession(req: Request, res: Response): 
         quantity: item.quantity,
       })),
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/success?orderId=${order._id}`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/${order._id}`,
+      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/vi/order/success?orderId=${order._id}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/vi/order/${order._id}`,
       metadata: {
         orderId: order._id.toString(),
         userId: order.user.toString(),
@@ -608,39 +670,180 @@ export async function createStripeCheckoutSessionWithCart(req: Request, res: Res
       return;
     }
 
-    // Tính tổng tiền
+    console.log('Creating checkout session with metadata:', {
+      items: items.length,
+      user: req.user._id,
+      paymentMethod,
+      addressProvided: !!deliveryAddress
+    });
+
+    // Tính tổng tiền và xử lý line_items
     let totalAmount = 0;
-    const line_items = items.map((item: any) => {
+    const lineItemsPromises = items.map(async (item: any) => {
       totalAmount += item.price * item.quantity;
+      
+      // Lấy tên món ăn đúng format
+      let itemName = 'Sản phẩm';
+      if (item.menuItem) {
+        if (typeof item.menuItem === 'object' && item.menuItem.name) {
+          // Xử lý tên đa ngôn ngữ
+          if (typeof item.menuItem.name === 'object') {
+            // Ưu tiên tiếng Việt
+            itemName = item.menuItem.name.vi || item.menuItem.name.en || 'Sản phẩm';
+          } else {
+            itemName = item.menuItem.name;
+          }
+        } else if (typeof item.menuItem === 'string') {
+          // Nếu chỉ có ID, cố gắng tìm tên món ăn trong database
+          try {
+            const MenuItem = require('../models/MenuItem').MenuItem;
+            const menuItemData = await MenuItem.findById(item.menuItem);
+            if (menuItemData && menuItemData.name) {
+              if (typeof menuItemData.name === 'object') {
+                itemName = menuItemData.name.vi || menuItemData.name.en || 'Sản phẩm';
+              } else {
+                itemName = menuItemData.name;
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching menu item name:', error);
+          }
+        }
+      }
+      
+      // Log để debug
+      console.log(`Item processed: ${itemName} - ${item.quantity} x ${item.price}`);
+      
+      // Tạo product_data chỉ với name, thêm description chỉ khi có giá trị
+      const product_data: any = {
+        name: itemName,
+      };
+      
+      // Chỉ thêm description nếu có giá trị không rỗng
+      if (item.menuItem?.description && typeof item.menuItem.description === 'string' && item.menuItem.description.trim() !== '') {
+        product_data.description = item.menuItem.description;
+      }
+      
       return {
         price_data: {
           currency: 'vnd',
-          product_data: {
-            name: item.menuItem?.name || 'Sản phẩm',
-          },
+          product_data,
           unit_amount: Math.round(item.price),
         },
         quantity: item.quantity,
       };
     });
+    
+    // Đợi tất cả các promise hoàn thành
+    const line_items = await Promise.all(lineItemsPromises);
+
+    // Simplified items for metadata to avoid exceeding limits
+    const metadataItems = await Promise.all(items.map(async (item: any) => {
+      let menuItemId;
+      
+      if (typeof item.menuItem === 'object' && item.menuItem._id) {
+        menuItemId = item.menuItem._id;
+      } else if (typeof item.menuItem === 'string') {
+        menuItemId = item.menuItem;
+      }
+      
+      return {
+        menuItem: menuItemId,
+        quantity: item.quantity,
+        price: item.price,
+        specialInstructions: item.specialInstructions || ''
+      };
+    }));
+
+    // Định nghĩa kiểu cho metadataValues để có thể thêm thuộc tính orderId
+    interface MetadataValues {
+      items: string;
+      deliveryAddress: string;
+      paymentMethod: string;
+      specialInstructions: string;
+      user: string;
+      totalAmount: string;
+      created: string;
+      orderId?: string; // Thuộc tính tùy chọn
+    }
+
+    // Format values as strings to ensure they can be stored in metadata
+    const metadataValues: MetadataValues = {
+      items: JSON.stringify(metadataItems),
+      deliveryAddress: JSON.stringify(deliveryAddress),
+      paymentMethod: paymentMethod || 'stripe',
+      specialInstructions: specialInstructions || '',
+      user: JSON.stringify({
+        _id: req.user._id,
+        email: req.user.email
+      }),
+      totalAmount: totalAmount.toString(),
+      created: new Date().toISOString()
+    };
+
+    console.log('Preparing metadata:', {
+      itemsCount: metadataItems.length,
+      paymentMethod: metadataValues.paymentMethod,
+      userId: req.user._id,
+      totalAmount
+    });
+
+    // QUAN TRỌNG: Tạo đơn hàng trước khi chuyển hướng - đảm bảo luôn có đơn hàng
+    try {
+      const orderItems = metadataItems.map(item => ({
+        menuItem: item.menuItem,
+        quantity: item.quantity,
+        price: item.price,
+        specialInstructions: item.specialInstructions || ''
+      }));
+      
+      const newOrder = new Order({
+        user: req.user._id,
+        items: orderItems,
+        totalAmount: totalAmount,
+        deliveryAddress,
+        paymentMethod,
+        specialInstructions,
+        status: 'pending',
+        paymentStatus: 'pending',
+      });
+      
+      const savedOrder = await newOrder.save();
+      console.log(`Created pending order before checkout: ${savedOrder._id}`);
+      
+      // Thêm orderId vào metadata
+      metadataValues.orderId = savedOrder._id.toString();
+    } catch (orderError) {
+      console.error('Failed to create order before checkout:', orderError);
+      // Tiếp tục xử lý, không return lỗi
+    }
+
+    // Tạo URL thành công với orderId nếu có
+    let orderId = '';
+    if (metadataValues.orderId) {
+      orderId = metadataValues.orderId;
+    }
+    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/vi/order/success?session_id={CHECKOUT_SESSION_ID}${orderId ? `&orderId=${orderId}` : ''}`;
+    const cancelUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/vi/cart`;
 
     // Tạo Stripe Checkout Session
+    const stripe = require('../config/stripe').default;
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items,
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/cart`,
-      metadata: {
-        items: JSON.stringify(items),
-        deliveryAddress: JSON.stringify(deliveryAddress),
-        paymentMethod: paymentMethod || 'stripe',
-        specialInstructions: specialInstructions || '',
-        user: user ? JSON.stringify(user) : '',
-        totalAmount: totalAmount.toString()
-      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: metadataValues,
       customer_email: req.user.email,
+      locale: 'vi',
+      payment_intent_data: {
+        description: 'ChayFood - Ẩm thực chay',
+        statement_descriptor: 'ChayFood',
+      }
     });
+
+    console.log(`Created checkout session: ${session.id}, URL provided to client`);
 
     res.json({
       status: 'success',

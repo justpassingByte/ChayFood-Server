@@ -1,6 +1,5 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/auth';
-import { adminMiddleware } from '../middleware/admin-middleware';
 import multer from 'multer';
 import path from 'path';
 import type { Request } from 'express';
@@ -12,8 +11,6 @@ import {
   updateUserAddress,
   deleteUserAddress,
   setDefaultAddress,
-  getCustomersList,
-  getCustomerById,
   getFullUserProfile
 } from '../controllers/user-controller';
 
@@ -31,13 +28,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Admin routes
-router.get('/customers', authenticateToken, adminMiddleware, getCustomersList);
-router.get('/customers/:id', authenticateToken, adminMiddleware, getCustomerById);
-
 // Profile routes
 router.get('/profile', authenticateToken, getUserProfile);
-console.log('Mounting /user/profile/full route');
 router.get('/profile/full', authenticateToken, getFullUserProfile);
 router.put('/profile', authenticateToken, upload.single('picture'), updateUserProfile);
 

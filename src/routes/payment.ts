@@ -17,8 +17,8 @@ router.post('/create-intent/:orderId', authenticateToken, createPaymentIntent);
 // Confirm payment for an order
 router.post('/confirm/:orderId', authenticateToken, confirmPayment);
 
-// Handle Stripe webhooks - no authentication for this route as it's called by Stripe
-router.post('/webhook', handleWebhook);
+// Handle Stripe webhooks - no authentication as it's called by Stripe
+router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
 // Test endpoint for webhook verification
 router.get('/webhook-test', (req, res) => {

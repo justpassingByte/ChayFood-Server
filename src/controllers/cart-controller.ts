@@ -9,19 +9,19 @@ import mongoose from 'mongoose';
 async function ensureMenuItemsPopulated(cart: any): Promise<void> {
   if (!cart || !cart.items || !Array.isArray(cart.items)) return;
   
-  console.log('Checking cart items for proper population:', cart.items.length);
+  // console.log('Checking cart items for proper population:', cart.items.length);
   
   // Check each item in the cart
   for (let i = 0; i < cart.items.length; i++) {
     const item = cart.items[i];
     
     // Debug the specific item
-    console.log(`Cart item ${i}:`, {
-      id: item._id?.toString(),
-      menuItemRef: item.menuItem?.toString ? item.menuItem.toString() : item.menuItem,
-      menuItemType: typeof item.menuItem,
-      menuItemName: item.menuItem?.name
-    });
+    // console.log(`Cart item ${i}:`, {
+    //   id: item._id?.toString(),
+    //   menuItemRef: item.menuItem?.toString ? item.menuItem.toString() : item.menuItem,
+    //   menuItemType: typeof item.menuItem,
+    //   menuItemName: item.menuItem?.name
+    // });
     
     // If menuItem is missing or not fully populated
     if (!item.menuItem || 
@@ -35,7 +35,7 @@ async function ensureMenuItemsPopulated(cart: any): Promise<void> {
           ? item.menuItem._id.toString() 
           : item.menuItem?.toString();
         
-        console.log(`Fetching menu item by ID: ${menuItemId}`);
+        // console.log(`Fetching menu item by ID: ${menuItemId}`);
         
         if (!menuItemId) {
           console.error('No valid menuItemId found for cart item:', item);
@@ -47,7 +47,7 @@ async function ensureMenuItemsPopulated(cart: any): Promise<void> {
         
         if (realMenuItem) {
           // Replace with the real menu item data
-          console.log(`Found real menu item: ${realMenuItem.name}`);
+          // console.log(`Found real menu item: ${realMenuItem.name}`);
           cart.items[i].menuItem = realMenuItem;
         } else {
           console.warn(`Menu item with ID ${menuItemId} not found in database`);
@@ -101,17 +101,17 @@ export async function getUserCart(req: Request, res: Response): Promise<void> {
     }
 
     // Explicitly log the cart items after population
-    if (cart.items && cart.items.length > 0) {
-      console.log('Cart items after population:');
-      cart.items.forEach((item: any, index: number) => {
-        console.log(`Item ${index}:`, {
-          id: item._id,
-          menuItemId: item.menuItem?._id || item.menuItem,
-          name: item.menuItem?.name || 'No name',
-          price: item.menuItem?.price || 0
-        });
-      });
-    }
+    // if (cart.items && cart.items.length > 0) {
+    //   console.log('Cart items after population:');
+    //   cart.items.forEach((item: any, index: number) => {
+    //     console.log(`Item ${index}:`, {
+    //       id: item._id,
+    //       menuItemId: item.menuItem?._id || item.menuItem,
+    //       name: item.menuItem?.name || 'No name',
+    //       price: item.menuItem?.price || 0
+    //     });
+    //   });
+    // }
 
     // Calculate total price
     const total = await (cart as any).calculateTotal();
@@ -191,18 +191,18 @@ export async function addToCart(req: Request, res: Response): Promise<void> {
     // Ensure all menu items are properly populated
     await ensureMenuItemsPopulated(updatedCart);
 
-    // Explicitly log the cart items after population
-    if (updatedCart && updatedCart.items && updatedCart.items.length > 0) {
-      console.log('Cart items after update:');
-      updatedCart.items.forEach((item: any, index: number) => {
-        console.log(`Item ${index}:`, {
-          id: item._id,
-          menuItemId: item.menuItem?._id || item.menuItem,
-          name: item.menuItem?.name || 'No name',
-          price: item.menuItem?.price || 0
-        });
-      });
-    }
+    // // Explicitly log the cart items after population
+    // if (updatedCart && updatedCart.items && updatedCart.items.length > 0) {
+    //   console.log('Cart items after update:');
+    //   updatedCart.items.forEach((item: any, index: number) => {
+    //     console.log(`Item ${index}:`, {
+    //       id: item._id,
+    //       menuItemId: item.menuItem?._id || item.menuItem,
+    //       name: item.menuItem?.name || 'No name',
+    //       price: item.menuItem?.price || 0
+    //     });
+    //   });
+    // }
 
     // Calculate total price
     const total = await (updatedCart as any).calculateTotal();
@@ -276,17 +276,17 @@ export async function updateCartItem(req: Request, res: Response): Promise<void>
     await ensureMenuItemsPopulated(updatedCart);
 
     // Explicitly log the cart items after population
-    if (updatedCart && updatedCart.items && updatedCart.items.length > 0) {
-      console.log('Cart items after update:');
-      updatedCart.items.forEach((item: any, index: number) => {
-        console.log(`Item ${index}:`, {
-          id: item._id,
-          menuItemId: item.menuItem?._id || item.menuItem,
-          name: item.menuItem?.name || 'No name',
-          price: item.menuItem?.price || 0
-        });
-      });
-    }
+    // if (updatedCart && updatedCart.items && updatedCart.items.length > 0) {
+    //   console.log('Cart items after update:');
+    //   updatedCart.items.forEach((item: any, index: number) => {
+    //     console.log(`Item ${index}:`, {
+    //       id: item._id,
+    //       menuItemId: item.menuItem?._id || item.menuItem,
+    //       name: item.menuItem?.name || 'No name',
+    //       price: item.menuItem?.price || 0
+    //     });
+    //   });
+    // }
 
     // Calculate total price
     const total = await (updatedCart as any).calculateTotal();
@@ -341,17 +341,17 @@ export async function removeFromCart(req: Request, res: Response): Promise<void>
     await ensureMenuItemsPopulated(updatedCart);
 
     // Explicitly log the cart items after population
-    if (updatedCart && updatedCart.items && updatedCart.items.length > 0) {
-      console.log('Cart items after update:');
-      updatedCart.items.forEach((item: any, index: number) => {
-        console.log(`Item ${index}:`, {
-          id: item._id,
-          menuItemId: item.menuItem?._id || item.menuItem,
-          name: item.menuItem?.name || 'No name',
-          price: item.menuItem?.price || 0
-        });
-      });
-    }
+    // if (updatedCart && updatedCart.items && updatedCart.items.length > 0) {
+    //   console.log('Cart items after update:');
+    //   updatedCart.items.forEach((item: any, index: number) => {
+    //     console.log(`Item ${index}:`, {
+    //       id: item._id,
+    //       menuItemId: item.menuItem?._id || item.menuItem,
+    //       name: item.menuItem?.name || 'No name',
+    //       price: item.menuItem?.price || 0
+    //     });
+    //   });
+    // }
 
     // Calculate total price
     const total = await (updatedCart as any).calculateTotal();
